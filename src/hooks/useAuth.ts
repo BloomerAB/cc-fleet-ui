@@ -1,28 +1,26 @@
 import { useState, useCallback } from "react"
 import type { AuthUser } from "@bloomer-ab/claude-types"
-import { getUser, getToken, setAuth, clearAuth } from "../lib/auth.js"
+import { getUser, setAuth, clearAuth } from "../lib/auth.js"
 
-export function useAuth() {
+const useAuth = () => {
   const [user, setUser] = useState<AuthUser | null>(getUser)
-  const [token, setToken] = useState<string | null>(getToken)
 
-  const login = useCallback((newToken: string, newUser: AuthUser) => {
-    setAuth(newToken, newUser)
-    setToken(newToken)
+  const login = useCallback((newUser: AuthUser) => {
+    setAuth(newUser)
     setUser(newUser)
   }, [])
 
-  const logout = useCallback(() => {
-    clearAuth()
-    setToken(null)
+  const logout = useCallback(async () => {
+    await clearAuth()
     setUser(null)
   }, [])
 
   return {
     user,
-    token,
-    isAuthenticated: token !== null,
+    isAuthenticated: user !== null,
     login,
     logout,
   }
 }
+
+export { useAuth }

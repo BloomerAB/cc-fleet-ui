@@ -3,7 +3,9 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 import { api } from "../lib/api-client.js"
 import { useAuth } from "../hooks/useAuth.js"
 
-export function AuthCallback() {
+const AUTH_TIMEOUT_MS = 10_000
+
+const AuthCallback = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { login } = useAuth()
@@ -18,10 +20,18 @@ export function AuthCallback() {
       return
     }
 
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+      setError("Authentication timed out. Please try again.")
+    }, AUTH_TIMEOUT_MS)
+
     api
       .exchangeCode(code, state)
       .then((response) => {
-        login(response.data.token, {
+        clearTimeout(timeout)
+        if (controller.signal.aborted) return
+        login({
           id: response.data.user.id,
           login: response.data.user.login,
           avatarUrl: response.data.user.avatarUrl,
@@ -29,8 +39,15 @@ export function AuthCallback() {
         navigate("/", { replace: true })
       })
       .catch((err) => {
+        clearTimeout(timeout)
+        if (controller.signal.aborted) return
         setError(err instanceof Error ? err.message : "Authentication failed")
       })
+
+    return () => {
+      clearTimeout(timeout)
+      controller.abort()
+    }
   }, [searchParams, login, navigate])
 
   if (error) {
@@ -52,3 +69,5 @@ export function AuthCallback() {
     </div>
   )
 }
+
+export { AuthCallback }

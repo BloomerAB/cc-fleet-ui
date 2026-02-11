@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import type { Session } from "@bloomer-ab/claude-types"
 import { api } from "../lib/api-client.js"
 
-export function useSessions() {
+const useSessions = () => {
   const [sessions, setSessions] = useState<readonly Session[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,3 +34,5 @@ export function useSessions() {
 
   return { sessions, loading, error, refetch: fetchSessions, updateSession }
 }
+
+export { useSessions }

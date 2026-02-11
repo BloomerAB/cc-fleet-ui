@@ -3,7 +3,7 @@ import { useSessions } from "../hooks/useSessions.js"
 import { SessionCard } from "../components/SessionCard.js"
 import { useAuth } from "../hooks/useAuth.js"
 
-export function Dashboard() {
+const Dashboard = () => {
   const { sessions, loading, error } = useSessions()
   const { user, logout } = useAuth()
 
@@ -60,3 +60,5 @@ export function Dashboard() {
     </div>
   )
 }
+
+export { Dashboard }

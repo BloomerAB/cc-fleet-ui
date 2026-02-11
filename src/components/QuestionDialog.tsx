@@ -6,15 +6,15 @@ interface QuestionDialogProps {
   readonly onAnswer: (answers: Record<string, string>) => void
 }
 
-export function QuestionDialog({ questions, onAnswer }: QuestionDialogProps) {
+const QuestionDialog = ({ questions, onAnswer }: QuestionDialogProps) => {
   const [answers, setAnswers] = useState<Record<string, string>>({})
 
-  function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     onAnswer(answers)
   }
 
-  function updateAnswer(questionId: string, value: string) {
+  const updateAnswer = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }))
   }
 
@@ -71,3 +71,5 @@ export function QuestionDialog({ questions, onAnswer }: QuestionDialogProps) {
     </div>
   )
 }
+
+export { QuestionDialog }

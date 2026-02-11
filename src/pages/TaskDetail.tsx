@@ -7,7 +7,7 @@ import { StatusBadge } from "../components/StatusBadge.js"
 import { SessionOutput } from "../components/SessionOutput.js"
 import { QuestionDialog } from "../components/QuestionDialog.js"
 
-export function TaskDetail() {
+const TaskDetail = () => {
   const { id } = useParams<{ id: string }>()
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
@@ -109,3 +109,5 @@ export function TaskDetail() {
     </div>
   )
 }
+
+export { TaskDetail }

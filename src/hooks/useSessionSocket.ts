@@ -13,7 +13,7 @@ interface SessionSocketState {
   readonly status: SessionStatus | null
 }
 
-export function useSessionSocket(sessionId: string | null) {
+const useSessionSocket = (sessionId: string | null) => {
   const clientRef = useRef<WsClient | null>(null)
   const [state, setState] = useState<SessionSocketState>({
     outputs: [],
@@ -91,3 +91,5 @@ export function useSessionSocket(sessionId: string | null) {
     cancel,
   }
 }
+
+export { useSessionSocket }

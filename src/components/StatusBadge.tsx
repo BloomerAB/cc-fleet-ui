@@ -20,15 +20,15 @@ const STATUS_LABELS: Record<SessionStatus, string> = {
   cancelled: "Cancelled",
 }
 
-export function StatusBadge({ status }: { readonly status: SessionStatus }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}
-    >
-      {status === "running" && (
-        <span className="mr-1.5 h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-      )}
-      {STATUS_LABELS[status]}
-    </span>
-  )
-}
+const StatusBadge = ({ status }: { readonly status: SessionStatus }) => (
+  <span
+    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[status]}`}
+  >
+    {status === "running" && (
+      <span className="mr-1.5 h-2 w-2 animate-pulse rounded-full bg-blue-500" />
+    )}
+    {STATUS_LABELS[status]}
+  </span>
+)
+
+export { StatusBadge }

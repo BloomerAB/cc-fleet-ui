@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { z } from "zod"
 import type { CreateTaskRequest } from "@bloomer-ab/claude-types"
 
 interface TaskFormProps {
@@ -6,20 +7,44 @@ interface TaskFormProps {
   readonly submitting: boolean
 }
 
-export function TaskForm({ onSubmit, submitting }: TaskFormProps) {
+const taskSchema = z.object({
+  prompt: z.string().min(1, "Task description is required").max(10000, "Task description too long"),
+  repoUrl: z.string().url("Must be a valid URL").regex(/^https?:\/\//, "Must be an HTTP(S) URL"),
+  repoBranch: z.string().max(200, "Branch name too long").optional().or(z.literal("")),
+  maxTurns: z.number().int("Must be a whole number").min(1, "Minimum 1 turn").max(200, "Maximum 200 turns"),
+})
+
+const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
   const [prompt, setPrompt] = useState("")
   const [repoUrl, setRepoUrl] = useState("")
   const [repoBranch, setRepoBranch] = useState("")
   const [maxTurns, setMaxTurns] = useState(50)
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    await onSubmit({
+    setValidationErrors({})
+
+    const result = taskSchema.safeParse({
       prompt,
       repoUrl,
       repoBranch: repoBranch || undefined,
       maxTurns,
     })
+
+    if (!result.success) {
+      const errors: Record<string, string> = {}
+      for (const issue of result.error.issues) {
+        const key = issue.path[0]
+        if (typeof key === "string") {
+          errors[key] = issue.message
+        }
+      }
+      setValidationErrors(errors)
+      return
+    }
+
+    await onSubmit(result.data)
     setPrompt("")
   }
 
@@ -37,6 +62,9 @@ export function TaskForm({ onSubmit, submitting }: TaskFormProps) {
           required
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
+        {validationErrors["repoUrl"] && (
+          <p className="mt-1 text-xs text-red-600">{validationErrors["repoUrl"]}</p>
+        )}
       </div>
 
       <div>
@@ -50,6 +78,9 @@ export function TaskForm({ onSubmit, submitting }: TaskFormProps) {
           placeholder="main"
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
+        {validationErrors["repoBranch"] && (
+          <p className="mt-1 text-xs text-red-600">{validationErrors["repoBranch"]}</p>
+        )}
       </div>
 
       <div>
@@ -64,6 +95,9 @@ export function TaskForm({ onSubmit, submitting }: TaskFormProps) {
           rows={4}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
+        {validationErrors["prompt"] && (
+          <p className="mt-1 text-xs text-red-600">{validationErrors["prompt"]}</p>
+        )}
       </div>
 
       <div>
@@ -78,6 +112,9 @@ export function TaskForm({ onSubmit, submitting }: TaskFormProps) {
           max={200}
           className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
         />
+        {validationErrors["maxTurns"] && (
+          <p className="mt-1 text-xs text-red-600">{validationErrors["maxTurns"]}</p>
+        )}
       </div>
 
       <button
@@ -90,3 +127,5 @@ export function TaskForm({ onSubmit, submitting }: TaskFormProps) {
     </form>
   )
 }
+
+export { TaskForm }

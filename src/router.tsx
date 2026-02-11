@@ -1,20 +1,21 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "./hooks/useAuth.js"
+import { ErrorBoundary } from "./components/ErrorBoundary.js"
 import { Login } from "./pages/Login.js"
 import { AuthCallback } from "./pages/AuthCallback.js"
 import { Dashboard } from "./pages/Dashboard.js"
 import { TaskNew } from "./pages/TaskNew.js"
 import { TaskDetail } from "./pages/TaskDetail.js"
 
-function ProtectedRoute({ children }: { readonly children: React.ReactNode }) {
+const ProtectedRoute = ({ children }: { readonly children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth()
   if (!isAuthenticated) return <Navigate to="/login" replace />
   return <>{children}</>
 }
 
-export function Router() {
-  return (
-    <BrowserRouter>
+const Router = () => (
+  <BrowserRouter>
+    <ErrorBoundary>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
@@ -43,6 +44,8 @@ export function Router() {
           }
         />
       </Routes>
-    </BrowserRouter>
-  )
-}
+    </ErrorBoundary>
+  </BrowserRouter>
+)
+
+export { Router }

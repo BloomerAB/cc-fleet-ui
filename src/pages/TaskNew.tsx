@@ -4,12 +4,12 @@ import type { CreateTaskRequest } from "@bloomer-ab/claude-types"
 import { api } from "../lib/api-client.js"
 import { TaskForm } from "../components/TaskForm.js"
 
-export function TaskNew() {
+const TaskNew = () => {
   const navigate = useNavigate()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSubmit(data: CreateTaskRequest) {
+  const handleSubmit = async (data: CreateTaskRequest) => {
     try {
       setSubmitting(true)
       setError(null)
@@ -48,3 +48,5 @@ export function TaskNew() {
     </div>
   )
 }
+
+export { TaskNew }

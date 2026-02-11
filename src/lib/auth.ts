@@ -1,13 +1,8 @@
 import type { AuthUser } from "@bloomer-ab/claude-types"
 
-const TOKEN_KEY = "claude_dashboard_token"
 const USER_KEY = "claude_dashboard_user"
 
-export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
-}
-
-export function getUser(): AuthUser | null {
+const getUser = (): AuthUser | null => {
   const raw = localStorage.getItem(USER_KEY)
   if (!raw) return null
   try {
@@ -17,20 +12,34 @@ export function getUser(): AuthUser | null {
   }
 }
 
-export function setAuth(token: string, user: AuthUser): void {
-  localStorage.setItem(TOKEN_KEY, token)
+const getToken = (): null => {
+  // JWT is stored as httpOnly cookie by the server.
+  // It is sent automatically via credentials: 'include'.
+  return null
+}
+
+const setAuth = (user: AuthUser): void => {
   localStorage.setItem(USER_KEY, JSON.stringify(user))
 }
 
-export function clearAuth(): void {
-  localStorage.removeItem(TOKEN_KEY)
+const clearAuth = async (): Promise<void> => {
   localStorage.removeItem(USER_KEY)
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    })
+  } catch {
+    // Best-effort logout; cookie may already be expired
+  }
 }
 
-export function isAuthenticated(): boolean {
-  return getToken() !== null
+const isAuthenticated = (): boolean => {
+  return getUser() !== null
 }
 
-export function getGitHubLoginUrl(): string {
+const getGitHubLoginUrl = (): string => {
   return "/api/auth/github"
 }
+
+export { getUser, getToken, setAuth, clearAuth, isAuthenticated, getGitHubLoginUrl }

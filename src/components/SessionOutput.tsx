@@ -5,7 +5,7 @@ interface SessionOutputProps {
   readonly outputs: readonly DashboardOutputMessage[]
 }
 
-export function SessionOutput({ outputs }: SessionOutputProps) {
+const SessionOutput = ({ outputs }: SessionOutputProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -35,3 +35,5 @@ export function SessionOutput({ outputs }: SessionOutputProps) {
     </div>
   )
 }
+
+export { SessionOutput }
