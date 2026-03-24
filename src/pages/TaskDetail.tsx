@@ -57,9 +57,9 @@ const TaskDetail = () => {
       <main className="mx-auto max-w-4xl px-4 py-6">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <p className="text-sm text-gray-900">{session.taskConfig.prompt}</p>
+            <p className="text-sm text-gray-900">{session.prompt}</p>
             <p className="mt-1 text-xs text-gray-500">
-              {session.taskConfig.repoUrl}
+              {session.repos.map((r) => r.url.replace(/^https?:\/\//, "").replace(/\.git$/, "")).join(", ")}
             </p>
           </div>
           <div className="flex items-center gap-3">
