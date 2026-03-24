@@ -1,7 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { TaskForm } from "./TaskForm.js"
+
+// Mock the API client
+vi.mock("../lib/api-client.js", () => ({
+  api: {
+    listOrgs: vi.fn().mockResolvedValue({
+      success: true,
+      data: [
+        { login: "testuser", avatarUrl: "" },
+        { login: "TestOrg", avatarUrl: "https://example.com/avatar.png" },
+      ],
+    }),
+    listRepos: vi.fn().mockResolvedValue({
+      success: true,
+      data: [
+        { name: "repo-1", fullName: "TestOrg/repo-1", url: "https://github.com/TestOrg/repo-1", description: "First repo", language: "TypeScript", defaultBranch: "main", updatedAt: "2026-01-01", archived: false },
+        { name: "repo-2", fullName: "TestOrg/repo-2", url: "https://github.com/TestOrg/repo-2", description: null, language: "Go", defaultBranch: "main", updatedAt: "2026-01-01", archived: false },
+      ],
+    }),
+  },
+}))
 
 describe("TaskForm", () => {
   const mockSubmit = vi.fn().mockResolvedValue(undefined)
@@ -13,26 +33,29 @@ describe("TaskForm", () => {
   const renderForm = (submitting = false) =>
     render(<TaskForm onSubmit={mockSubmit} submitting={submitting} />)
 
-  it("renders repo URL input, branch input, prompt textarea, and max turns", () => {
+  it("renders mode selector with three options", () => {
     renderForm()
 
-    expect(screen.getByPlaceholderText("https://github.com/org/repo")).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("branch")).toBeInTheDocument()
+    expect(screen.getByText("Claude Discovers")).toBeInTheDocument()
+    expect(screen.getByText("Organization + Pattern")).toBeInTheDocument()
+    expect(screen.getByText("Direct URLs")).toBeInTheDocument()
+  })
+
+  it("defaults to discovery mode", () => {
+    renderForm()
+
+    expect(screen.getByText(/Claude sees all repos/)).toBeInTheDocument()
+  })
+
+  it("renders prompt textarea and max turns input", () => {
+    renderForm()
+
     expect(screen.getByPlaceholderText("Describe the task for Claude...")).toBeInTheDocument()
-    expect(screen.getByDisplayValue("50")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("200")).toBeInTheDocument()
   })
 
   it("submit button is disabled when prompt is empty", () => {
     renderForm()
-
-    expect(screen.getByText("Submit Task")).toBeDisabled()
-  })
-
-  it("submit button is disabled when no repo URL entered", async () => {
-    const user = userEvent.setup()
-    renderForm()
-
-    await user.type(screen.getByPlaceholderText("Describe the task for Claude..."), "Fix bug")
 
     expect(screen.getByText("Submit Task")).toBeDisabled()
   })
@@ -43,122 +66,188 @@ describe("TaskForm", () => {
     expect(screen.getByText("Submitting...")).toBeDisabled()
   })
 
-  it("adds and removes repo inputs", async () => {
-    const user = userEvent.setup()
+  it("loads org dropdown in discovery mode", async () => {
     renderForm()
 
-    // Initially one repo input, no remove button
-    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(1)
-    expect(screen.queryByText("x")).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText("Organization")).toBeInTheDocument()
+    })
 
-    // Add a repo
-    await user.click(screen.getByText("+ Add repo"))
-    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(2)
-
-    // Now remove buttons appear
-    const removeButtons = screen.getAllByText("x")
-    expect(removeButtons).toHaveLength(2)
-
-    // Remove one
-    await user.click(removeButtons[0])
-    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(1)
+    // Orgs should be loaded from mock
+    await waitFor(() => {
+      expect(screen.getByRole("combobox")).toBeInTheDocument()
+    })
   })
 
-  it("hides 'Add repo' button when 10 repos added", async () => {
-    const user = userEvent.setup()
+  it("shows hint field in discovery mode", () => {
     renderForm()
 
-    // Add 9 more repos (start with 1)
-    for (let i = 0; i < 9; i++) {
-      await user.click(screen.getByText("+ Add repo"))
+    expect(screen.getByPlaceholderText(/focus on the backend/)).toBeInTheDocument()
+  })
+
+  describe("direct mode", () => {
+    const switchToDirect = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByText("Direct URLs"))
     }
 
-    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(10)
-    expect(screen.queryByText("+ Add repo")).not.toBeInTheDocument()
-  })
+    it("shows repo URL inputs when direct mode selected", async () => {
+      const user = userEvent.setup()
+      renderForm()
 
-  it("submits valid form data with repos array", async () => {
-    const user = userEvent.setup()
-    renderForm()
+      await switchToDirect(user)
 
-    await user.type(
-      screen.getByPlaceholderText("https://github.com/org/repo"),
-      "https://github.com/org/my-repo"
-    )
-    await user.type(screen.getByPlaceholderText("branch"), "main")
-    await user.type(
-      screen.getByPlaceholderText("Describe the task for Claude..."),
-      "Fix the bug"
-    )
+      expect(screen.getByPlaceholderText("https://github.com/org/repo")).toBeInTheDocument()
+      expect(screen.getByPlaceholderText("branch")).toBeInTheDocument()
+    })
 
-    await user.click(screen.getByText("Submit Task"))
+    it("submit is disabled without repo URL in direct mode", async () => {
+      const user = userEvent.setup()
+      renderForm()
 
-    expect(mockSubmit).toHaveBeenCalledWith({
-      prompt: "Fix the bug",
-      repos: [{ url: "https://github.com/org/my-repo", branch: "main" }],
-      maxTurns: 50,
+      await switchToDirect(user)
+      await user.type(screen.getByPlaceholderText("Describe the task for Claude..."), "Fix bug")
+
+      expect(screen.getByText("Submit Task")).toBeDisabled()
+    })
+
+    it("adds and removes repo inputs", async () => {
+      const user = userEvent.setup()
+      renderForm()
+
+      await switchToDirect(user)
+
+      expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(1)
+      expect(screen.queryByText("x")).not.toBeInTheDocument()
+
+      await user.click(screen.getByText("+ Add repo"))
+      expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(2)
+
+      const removeButtons = screen.getAllByText("x")
+      expect(removeButtons).toHaveLength(2)
+
+      await user.click(removeButtons[0])
+      expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(1)
+    })
+
+    it("submits direct mode with repos", async () => {
+      const user = userEvent.setup()
+      renderForm()
+
+      await switchToDirect(user)
+
+      await user.type(
+        screen.getByPlaceholderText("https://github.com/org/repo"),
+        "https://github.com/org/my-repo"
+      )
+      await user.type(screen.getByPlaceholderText("branch"), "main")
+      await user.type(
+        screen.getByPlaceholderText("Describe the task for Claude..."),
+        "Fix the bug"
+      )
+
+      await user.click(screen.getByText("Submit Task"))
+
+      expect(mockSubmit).toHaveBeenCalledWith({
+        prompt: "Fix the bug",
+        repoSource: {
+          mode: "direct",
+          repos: [{ url: "https://github.com/org/my-repo", branch: "main" }],
+        },
+        maxTurns: 200,
+      })
+    })
+
+    it("omits branch when empty", async () => {
+      const user = userEvent.setup()
+      renderForm()
+
+      await switchToDirect(user)
+
+      await user.type(
+        screen.getByPlaceholderText("https://github.com/org/repo"),
+        "https://github.com/org/repo"
+      )
+      await user.type(
+        screen.getByPlaceholderText("Describe the task for Claude..."),
+        "Do something"
+      )
+
+      await user.click(screen.getByText("Submit Task"))
+
+      expect(mockSubmit).toHaveBeenCalledWith({
+        prompt: "Do something",
+        repoSource: {
+          mode: "direct",
+          repos: [{ url: "https://github.com/org/repo" }],
+        },
+        maxTurns: 200,
+      })
     })
   })
 
-  it("submits repos without branch when branch is empty", async () => {
-    const user = userEvent.setup()
-    renderForm()
+  describe("discovery mode submission", () => {
+    it("submits discovery mode with org and prompt", async () => {
+      const user = userEvent.setup()
+      renderForm()
 
-    await user.type(
-      screen.getByPlaceholderText("https://github.com/org/repo"),
-      "https://github.com/org/repo"
-    )
-    await user.type(
-      screen.getByPlaceholderText("Describe the task for Claude..."),
-      "Do something"
-    )
+      // Wait for orgs to load
+      await waitFor(() => {
+        expect(screen.getByRole("combobox")).toBeInTheDocument()
+      })
 
-    await user.click(screen.getByText("Submit Task"))
+      await user.type(
+        screen.getByPlaceholderText("Describe the task for Claude..."),
+        "Audit all services"
+      )
 
-    expect(mockSubmit).toHaveBeenCalledWith({
-      prompt: "Do something",
-      repos: [{ url: "https://github.com/org/repo" }],
-      maxTurns: 50,
+      await user.click(screen.getByText("Submit Task"))
+
+      expect(mockSubmit).toHaveBeenCalledWith({
+        prompt: "Audit all services",
+        repoSource: {
+          mode: "discovery",
+          org: "testuser",
+        },
+        maxTurns: 200,
+      })
+    })
+
+    it("includes hint when provided", async () => {
+      const user = userEvent.setup()
+      renderForm()
+
+      await waitFor(() => {
+        expect(screen.getByRole("combobox")).toBeInTheDocument()
+      })
+
+      await user.type(screen.getByPlaceholderText(/focus on the backend/), "only TypeScript repos")
+      await user.type(
+        screen.getByPlaceholderText("Describe the task for Claude..."),
+        "Fix types"
+      )
+
+      await user.click(screen.getByText("Submit Task"))
+
+      expect(mockSubmit).toHaveBeenCalledWith({
+        prompt: "Fix types",
+        repoSource: {
+          mode: "discovery",
+          org: "testuser",
+          hint: "only TypeScript repos",
+        },
+        maxTurns: 200,
+      })
     })
   })
 
-  it("resets form after successful submission", async () => {
-    const user = userEvent.setup()
-    renderForm()
+  describe("org mode", () => {
+    it("shows pattern input when org mode selected", async () => {
+      const user = userEvent.setup()
+      renderForm()
 
-    await user.type(
-      screen.getByPlaceholderText("https://github.com/org/repo"),
-      "https://github.com/org/repo"
-    )
-    await user.type(
-      screen.getByPlaceholderText("Describe the task for Claude..."),
-      "Fix bug"
-    )
+      await user.click(screen.getByText("Organization + Pattern"))
 
-    await user.click(screen.getByText("Submit Task"))
-
-    // After submit, prompt should be cleared
-    expect(screen.getByPlaceholderText("Describe the task for Claude...")).toHaveValue("")
-  })
-
-  it("shows validation error for invalid repo URL", async () => {
-    const user = userEvent.setup()
-    renderForm()
-
-    // Type invalid URL in repo field
-    await user.type(
-      screen.getByPlaceholderText("https://github.com/org/repo"),
-      "not-a-url"
-    )
-    await user.type(
-      screen.getByPlaceholderText("Describe the task for Claude..."),
-      "Fix bug"
-    )
-
-    await user.click(screen.getByText("Submit Task"))
-
-    // The form uses browser validation for url type, but zod also validates
-    // mockSubmit should NOT have been called
-    expect(mockSubmit).not.toHaveBeenCalled()
+      expect(screen.getByPlaceholderText(/e\.g\. service-\*/)).toBeInTheDocument()
+    })
   })
 })

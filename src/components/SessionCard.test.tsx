@@ -46,9 +46,12 @@ describe("SessionCard", () => {
     id: "s1",
     userId: "u1",
     prompt: "Fix the login bug in the auth module",
+    repoSource: { mode: "direct" as const, repos: [{ url: "https://github.com/org/repo" }] },
     repos: [{ url: "https://github.com/org/repo" }],
     status: "completed" as const,
-    jobName: null,
+    maxTurns: 200,
+    maxBudgetUsd: 5.0,
+    deadlineSeconds: 3600,
     result: {
       success: true,
       summary: "Fixed the bug",
@@ -87,6 +90,13 @@ describe("SessionCard", () => {
   it("renders multiple repo names joined by comma", () => {
     renderCard({
       ...baseSession,
+      repoSource: {
+        mode: "direct" as const,
+        repos: [
+          { url: "https://github.com/org/repo1" },
+          { url: "https://github.com/org/repo2" },
+        ],
+      },
       repos: [
         { url: "https://github.com/org/repo1" },
         { url: "https://github.com/org/repo2" },
