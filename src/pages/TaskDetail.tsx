@@ -59,7 +59,11 @@ const TaskDetail = () => {
           <div>
             <p className="text-sm text-gray-900">{session.prompt}</p>
             <p className="mt-1 text-xs text-gray-500">
-              {session.repos.map((r) => r.url.replace(/^https?:\/\//, "").replace(/\.git$/, "")).join(", ")}
+              {session.repoSource.mode === "direct"
+                ? session.repoSource.repos.map((r) => r.url.replace(/^https?:\/\//, "").replace(/\.git$/, "")).join(", ")
+                : session.repoSource.mode === "org"
+                  ? `${session.repoSource.org}${session.repoSource.pattern ? `/${session.repoSource.pattern}` : ""}`
+                  : `${session.repoSource.org} (discovery)`}
             </p>
           </div>
           <div className="flex items-center gap-3">

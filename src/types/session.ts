@@ -12,9 +12,30 @@ export interface RepoConfig {
   readonly branch?: string
 }
 
+export interface DirectRepoSource {
+  readonly mode: "direct"
+  readonly repos: readonly RepoConfig[]
+}
+
+export interface OrgRepoSource {
+  readonly mode: "org"
+  readonly org: string
+  readonly pattern?: string
+}
+
+export interface DiscoveryRepoSource {
+  readonly mode: "discovery"
+  readonly org: string
+  readonly hint?: string
+}
+
+export type RepoSource = DirectRepoSource | OrgRepoSource | DiscoveryRepoSource
+
+export type RepoSourceMode = RepoSource["mode"]
+
 export interface TaskConfig {
   readonly prompt: string
-  readonly repos: readonly RepoConfig[]
+  readonly repoSource: RepoSource
   readonly maxTurns?: number
   readonly maxBudgetUsd?: number
   readonly deadlineSeconds?: number
@@ -25,6 +46,7 @@ export interface Session {
   readonly userId: string
   readonly status: SessionStatus
   readonly prompt: string
+  readonly repoSource: RepoSource
   readonly repos: readonly RepoConfig[]
   readonly maxTurns: number
   readonly maxBudgetUsd: number

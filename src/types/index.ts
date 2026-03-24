@@ -1,6 +1,11 @@
 export type {
   SessionStatus,
   RepoConfig,
+  DirectRepoSource,
+  OrgRepoSource,
+  DiscoveryRepoSource,
+  RepoSource,
+  RepoSourceMode,
   TaskConfig,
   Session,
   SessionResult,
@@ -31,4 +36,6 @@ export type {
   GetTaskResponse,
   CancelTaskResponse,
   AuthUser,
+  GitHubOrg,
+  GitHubRepo,
 } from "./api.js"

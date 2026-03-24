@@ -15,6 +15,19 @@ const extractRepoName = (url: string): string => {
   return match?.[1] ?? url
 }
 
+const formatRepoSource = (session: Session): string => {
+  switch (session.repoSource.mode) {
+    case "direct":
+      return session.repoSource.repos.map((r) => extractRepoName(r.url)).join(", ")
+    case "org":
+      return session.repoSource.pattern
+        ? `${session.repoSource.org}/${session.repoSource.pattern}`
+        : session.repoSource.org
+    case "discovery":
+      return `${session.repoSource.org} (discovery)`
+  }
+}
+
 const SessionCard = ({ session }: { readonly session: Session }) => (
   <Link
     to={`/tasks/${session.id}`}
@@ -27,7 +40,7 @@ const SessionCard = ({ session }: { readonly session: Session }) => (
           {session.prompt.length > 100 ? "..." : ""}
         </p>
         <p className="mt-1 text-xs text-gray-500">
-          {session.repos.map((r) => extractRepoName(r.url)).join(", ")}
+          {formatRepoSource(session)}
         </p>
       </div>
       <StatusBadge status={session.status} />

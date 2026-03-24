@@ -4,6 +4,9 @@ import type {
   ListTasksResponse,
   GetTaskResponse,
   CancelTaskResponse,
+  ApiResponse,
+  GitHubOrg,
+  GitHubRepo,
 } from "../types/index.js"
 import { getToken } from "./auth.js"
 
@@ -48,6 +51,16 @@ const api = {
 
   cancelTask: (id: string): Promise<CancelTaskResponse> =>
     request(`/tasks/${id}/cancel`, { method: "POST" }),
+
+  // GitHub endpoints
+  listOrgs: (): Promise<ApiResponse<readonly GitHubOrg[]>> =>
+    request("/github/orgs"),
+
+  listRepos: (org: string, pattern?: string): Promise<ApiResponse<readonly GitHubRepo[]>> => {
+    const params = new URLSearchParams({ org })
+    if (pattern) params.set("pattern", pattern)
+    return request(`/github/repos?${params}`)
+  },
 }
 
 export { api }

@@ -1,4 +1,4 @@
-import type { Session, RepoConfig } from "./session.js"
+import type { Session, RepoSource } from "./session.js"
 
 // Generic API response wrapper
 export interface ApiResponse<T> {
@@ -17,9 +17,26 @@ export interface PaginationMeta {
 // POST /api/tasks
 export interface CreateTaskRequest {
   readonly prompt: string
-  readonly repos: readonly RepoConfig[]
+  readonly repoSource: RepoSource
   readonly maxTurns?: number
   readonly maxBudgetUsd?: number
+}
+
+// GitHub API types
+export interface GitHubOrg {
+  readonly login: string
+  readonly avatarUrl: string
+}
+
+export interface GitHubRepo {
+  readonly name: string
+  readonly fullName: string
+  readonly url: string
+  readonly description: string | null
+  readonly language: string | null
+  readonly defaultBranch: string
+  readonly updatedAt: string
+  readonly archived: boolean
 }
 
 export type CreateTaskResponse = ApiResponse<Session>
