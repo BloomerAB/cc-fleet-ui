@@ -1,7 +1,7 @@
 import type {
   ManagerToDashboardMessage,
   DashboardToManagerMessage,
-} from "@bloomerab/cc-fleet-types"
+} from "../types/index.js"
 import { getToken } from "./auth.js"
 
 type MessageHandler = (message: ManagerToDashboardMessage) => void

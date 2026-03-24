@@ -1,4 +1,4 @@
-import type { SessionStatus } from "@bloomerab/cc-fleet-types"
+import type { SessionStatus } from "../types/index.js"
 
 const STATUS_STYLES: Record<SessionStatus, string> = {
   queued: "bg-yellow-100 text-yellow-800",

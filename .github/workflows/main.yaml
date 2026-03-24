@@ -13,8 +13,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,7 +58,5 @@ jobs:
           tags: |
             ghcr.io/bloomerab/cc-fleet-ui:latest
             ghcr.io/bloomerab/cc-fleet-ui:${{ steps.tag.outputs.tag }}
-          build-args: |
-            NPM_TOKEN=${{ secrets.NPM_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

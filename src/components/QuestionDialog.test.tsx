@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { QuestionDialog } from "./QuestionDialog.js"
-import type { Question } from "@bloomerab/cc-fleet-types"
+import type { Question } from "../types/index.js"
 
 afterEach(() => {
   vi.restoreAllMocks()

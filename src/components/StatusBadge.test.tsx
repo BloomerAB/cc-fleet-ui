@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { StatusBadge } from "./StatusBadge.js"
-import type { SessionStatus } from "@bloomerab/cc-fleet-types"
+import type { SessionStatus } from "../types/index.js"
 
 const allStatuses: readonly SessionStatus[] = [
   "queued",

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { z } from "zod"
-import type { CreateTaskRequest } from "@bloomerab/cc-fleet-types"
+import type { CreateTaskRequest } from "../types/index.js"
 
 interface TaskFormProps {
   readonly onSubmit: (data: CreateTaskRequest) => Promise<void>

@@ -4,7 +4,7 @@ import type {
   ListTasksResponse,
   GetTaskResponse,
   CancelTaskResponse,
-} from "@bloomerab/cc-fleet-types"
+} from "../types/index.js"
 import { getToken } from "./auth.js"
 
 const BASE_URL = "/api"

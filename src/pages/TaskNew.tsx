@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import type { CreateTaskRequest } from "@bloomerab/cc-fleet-types"
+import type { CreateTaskRequest } from "../types/index.js"
 import { api } from "../lib/api-client.js"
 import { TaskForm } from "../components/TaskForm.js"
 
