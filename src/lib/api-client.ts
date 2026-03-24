@@ -52,6 +52,16 @@ const api = {
   cancelTask: (id: string): Promise<CancelTaskResponse> =>
     request(`/tasks/${id}/cancel`, { method: "POST" }),
 
+  // Settings
+  getSettings: (): Promise<ApiResponse<{ hasAnthropicKey: boolean }>> =>
+    request("/settings"),
+
+  updateSettings: (data: { anthropicApiKey: string }): Promise<ApiResponse<null>> =>
+    request("/settings", { method: "PUT", body: JSON.stringify(data) }),
+
+  removeAnthropicKey: (): Promise<ApiResponse<null>> =>
+    request("/settings/anthropic-key", { method: "DELETE" }),
+
   // GitHub endpoints
   listOrgs: (): Promise<ApiResponse<readonly GitHubOrg[]>> =>
     request("/github/orgs"),

@@ -16,6 +16,9 @@ const Dashboard = () => {
             {user && (
               <span className="text-sm text-gray-500">{user.login}</span>
             )}
+            <Link to="/settings" className="text-sm text-gray-500 hover:text-gray-700">
+              Settings
+            </Link>
             <button
               onClick={logout}
               className="text-sm text-gray-500 hover:text-gray-700"
@@ -31,7 +34,7 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold text-gray-900">Sessions</h2>
           <Link
             to="/tasks/new"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
           >
             New Task
           </Link>
@@ -49,7 +52,7 @@ const Dashboard = () => {
               <p className="text-gray-500">No sessions yet</p>
               <Link
                 to="/tasks/new"
-                className="mt-2 inline-block text-sm text-blue-600 hover:underline"
+                className="mt-2 inline-block text-sm text-orange-600 hover:underline"
               >
                 Create your first task
               </Link>

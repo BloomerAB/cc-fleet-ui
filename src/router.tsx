@@ -5,6 +5,7 @@ import { Login } from "./pages/Login.js"
 import { Dashboard } from "./pages/Dashboard.js"
 import { TaskNew } from "./pages/TaskNew.js"
 import { TaskDetail } from "./pages/TaskDetail.js"
+import { Settings } from "./pages/Settings.js"
 
 const ProtectedRoute = ({ children }: { readonly children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth()
@@ -38,6 +39,14 @@ const Router = () => (
           element={
             <ProtectedRoute>
               <TaskDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
             </ProtectedRoute>
           }
         />

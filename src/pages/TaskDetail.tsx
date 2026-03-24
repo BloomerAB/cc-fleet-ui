@@ -95,7 +95,7 @@ const TaskDetail = () => {
                   href={session.result.prUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-orange-600 hover:underline"
                 >
                   View PR
                 </a>

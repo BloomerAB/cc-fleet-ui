@@ -170,7 +170,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
               onClick={() => setMode(m)}
               className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
                 mode === m
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                  ? "border-orange-500 bg-orange-50 text-orange-700"
                   : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
               }`}
             >
@@ -187,7 +187,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
           <div className="mb-1 flex items-center justify-between">
             <label className="block text-sm font-medium text-gray-700">Repositories</label>
             {repos.length < 10 && (
-              <button type="button" onClick={addRepo} className="text-xs text-blue-600 hover:text-blue-800">
+              <button type="button" onClick={addRepo} className="text-xs text-orange-600 hover:text-orange-800">
                 + Add repo
               </button>
             )}
@@ -199,14 +199,14 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
                 value={repo.url}
                 onChange={(e) => updateRepo(i, "url", e.target.value)}
                 placeholder="https://github.com/org/repo"
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
               />
               <input
                 type="text"
                 value={repo.branch}
                 onChange={(e) => updateRepo(i, "branch", e.target.value)}
                 placeholder="branch"
-                className="w-28 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="w-28 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
               />
               {repos.length > 1 && (
                 <button
@@ -232,7 +232,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
             <select
               value={selectedOrg}
               onChange={(e) => setSelectedOrg(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
             >
               {orgs.map((org) => (
                 <option key={org.login} value={org.login}>
@@ -255,7 +255,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
             value={pattern}
             onChange={(e) => setPattern(e.target.value)}
             placeholder="e.g. service-* or *-api"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
           />
           {previewLoading && <p className="mt-1 text-xs text-gray-500">Loading repos...</p>}
           {!previewLoading && previewRepos.length > 0 && (
@@ -287,7 +287,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
             value={hint}
             onChange={(e) => setHint(e.target.value)}
             placeholder="e.g. focus on the backend services, or repos with Terraform"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
           />
         </div>
       )}
@@ -301,7 +301,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
           placeholder="Describe the task for Claude..."
           required
           rows={4}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
         />
       </div>
 
@@ -316,14 +316,14 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
           onChange={(e) => setMaxTurns(Number(e.target.value))}
           min={1}
           max={500}
-          className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+          className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={submitting || !isValid()}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-orange-700 disabled:bg-gray-400"
       >
         {submitting ? "Submitting..." : "Submit Task"}
       </button>
