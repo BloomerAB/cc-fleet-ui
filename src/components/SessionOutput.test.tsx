@@ -17,23 +17,23 @@ describe("SessionOutput", () => {
     expect(screen.getByText("Waiting for output...")).toBeInTheDocument()
   })
 
-  it("renders output text", () => {
+  it("renders assistant text output", () => {
     const outputs = [makeOutput({ text: "Running tests..." })]
     render(<SessionOutput outputs={outputs} />)
     expect(screen.getByText("Running tests...")).toBeInTheDocument()
   })
 
-  it("renders toolName when present", () => {
-    const outputs = [makeOutput({ toolName: "bash", text: "npm test" })]
+  it("renders tool block with tool name when present", () => {
+    const outputs = [makeOutput({ toolName: "Bash", text: '{"command":"npm test"}' })]
     render(<SessionOutput outputs={outputs} />)
-    expect(screen.getByText("[bash]")).toBeInTheDocument()
+    expect(screen.getByText("Bash")).toBeInTheDocument()
     expect(screen.getByText("npm test")).toBeInTheDocument()
   })
 
-  it("does not render toolName bracket when toolName is absent", () => {
+  it("does not render tool block for plain assistant output", () => {
     const outputs = [makeOutput({ text: "Some output" })]
     render(<SessionOutput outputs={outputs} />)
-    expect(screen.queryByText(/\[/)).not.toBeInTheDocument()
+    expect(screen.queryByText("Bash")).not.toBeInTheDocument()
   })
 
   it("renders multiple outputs", () => {
@@ -52,5 +52,11 @@ describe("SessionOutput", () => {
     const outputs = [makeOutput()]
     render(<SessionOutput outputs={outputs} />)
     expect(screen.queryByText("Waiting for output...")).not.toBeInTheDocument()
+  })
+
+  it("renders system messages", () => {
+    const outputs = [makeOutput({ text: "[System: init]" })]
+    render(<SessionOutput outputs={outputs} />)
+    expect(screen.getByText("[System: init]")).toBeInTheDocument()
   })
 })

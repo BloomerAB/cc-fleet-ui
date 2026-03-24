@@ -4,7 +4,7 @@ import { SessionCard } from "../components/SessionCard.js"
 import { useAuth } from "../hooks/useAuth.js"
 
 const Dashboard = () => {
-  const { sessions, loading, error } = useSessions()
+  const { sessions, loading, error, refetch } = useSessions()
   const { user, logout } = useAuth()
 
   return (
@@ -45,7 +45,7 @@ const Dashboard = () => {
 
         <div className="space-y-3">
           {sessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
+            <SessionCard key={session.id} session={session} onDeleted={refetch} />
           ))}
           {!loading && sessions.length === 0 && (
             <div className="rounded-lg border-2 border-dashed border-gray-300 py-12 text-center">

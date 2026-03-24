@@ -38,6 +38,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
   const [selectedOrg, setSelectedOrg] = useState("")
   const [pattern, setPattern] = useState("")
   const [hint, setHint] = useState("")
+  const [taskRules, setTaskRules] = useState("")
 
   // Preview for org mode
   const [previewRepos, setPreviewRepos] = useState<readonly GitHubRepo[]>([])
@@ -147,7 +148,12 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
     }
 
     try {
-      await onSubmit({ prompt, repoSource, maxTurns })
+      await onSubmit({
+        prompt,
+        repoSource,
+        ...(taskRules.trim() ? { rules: taskRules.trim() } : {}),
+        maxTurns,
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submit failed")
     }
@@ -302,6 +308,20 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
           required
           rows={4}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+        />
+      </div>
+
+      {/* Task-specific rules */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Task Rules <span className="text-gray-400">(optional — added to your global rules)</span>
+        </label>
+        <textarea
+          value={taskRules}
+          onChange={(e) => setTaskRules(e.target.value)}
+          placeholder="e.g. Use Go for new services, target Go 1.24"
+          rows={3}
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-orange-500 focus:outline-none"
         />
       </div>
 

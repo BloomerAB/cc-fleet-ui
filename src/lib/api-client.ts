@@ -52,11 +52,14 @@ const api = {
   cancelTask: (id: string): Promise<CancelTaskResponse> =>
     request(`/tasks/${id}/cancel`, { method: "POST" }),
 
+  deleteTask: (id: string): Promise<ApiResponse<{ deleted: boolean }>> =>
+    request(`/tasks/${id}`, { method: "DELETE" }),
+
   // Settings
-  getSettings: (): Promise<ApiResponse<{ hasAnthropicKey: boolean }>> =>
+  getSettings: (): Promise<ApiResponse<{ hasAnthropicKey: boolean; rules: string }>> =>
     request("/settings"),
 
-  updateSettings: (data: { anthropicApiKey: string }): Promise<ApiResponse<null>> =>
+  updateSettings: (data: { anthropicApiKey?: string; rules?: string }): Promise<ApiResponse<null>> =>
     request("/settings", { method: "PUT", body: JSON.stringify(data) }),
 
   removeAnthropicKey: (): Promise<ApiResponse<null>> =>

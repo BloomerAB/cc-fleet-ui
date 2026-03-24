@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import type { Session } from "../types/index.js"
 import { StatusBadge } from "./StatusBadge.js"
+import { api } from "../lib/api-client.js"
 
 const timeAgo = (dateStr: string): string => {
   const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000)
@@ -28,34 +29,65 @@ const formatRepoSource = (session: Session): string => {
   }
 }
 
-const SessionCard = ({ session }: { readonly session: Session }) => (
-  <Link
-    to={`/tasks/${session.id}`}
-    className="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
-  >
-    <div className="flex items-start justify-between">
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-gray-900">
-          {session.prompt.slice(0, 100)}
-          {session.prompt.length > 100 ? "..." : ""}
-        </p>
-        <p className="mt-1 text-xs text-gray-500">
-          {formatRepoSource(session)}
-        </p>
+interface SessionCardProps {
+  readonly session: Session
+  readonly onDeleted?: () => void
+}
+
+const SessionCard = ({ session, onDeleted }: SessionCardProps) => {
+  const canDelete = session.status !== "running"
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      await api.deleteTask(session.id)
+      onDeleted?.()
+    } catch {
+      // Silently fail — user can retry
+    }
+  }
+
+  return (
+    <Link
+      to={`/tasks/${session.id}`}
+      className="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+    >
+      <div className="flex items-start justify-between">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-gray-900">
+            {session.prompt.slice(0, 100)}
+            {session.prompt.length > 100 ? "..." : ""}
+          </p>
+          <p className="mt-1 text-xs text-gray-500">
+            {formatRepoSource(session)}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusBadge status={session.status} />
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              className="rounded px-1.5 py-0.5 text-xs text-gray-400 hover:bg-red-50 hover:text-red-500"
+              title="Delete session"
+            >
+              x
+            </button>
+          )}
+        </div>
       </div>
-      <StatusBadge status={session.status} />
-    </div>
-    <div className="mt-3 flex items-center gap-4 text-xs text-gray-400">
-      <span>{timeAgo(session.createdAt)}</span>
-      {session.result?.costUsd !== undefined && (
-        <span>${session.result.costUsd.toFixed(2)}</span>
-      )}
-      {session.result?.turnsUsed !== undefined && (
-        <span>{session.result.turnsUsed} turns</span>
-      )}
-    </div>
-  </Link>
-)
+      <div className="mt-3 flex items-center gap-4 text-xs text-gray-400">
+        <span>{timeAgo(session.createdAt)}</span>
+        {session.result?.costUsd !== undefined && (
+          <span>${session.result.costUsd.toFixed(2)}</span>
+        )}
+        {session.result?.turnsUsed !== undefined && (
+          <span>{session.result.turnsUsed} turns</span>
+        )}
+      </div>
+    </Link>
+  )
+}
 
 export { SessionCard }
 // exported for tests

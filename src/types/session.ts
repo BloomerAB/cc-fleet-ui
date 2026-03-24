@@ -48,6 +48,7 @@ export interface Session {
   readonly prompt: string
   readonly repoSource: RepoSource
   readonly repos: readonly RepoConfig[]
+  readonly rules: string | null
   readonly maxTurns: number
   readonly maxBudgetUsd: number
   readonly deadlineSeconds: number
