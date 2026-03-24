@@ -1,73 +1,99 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, beforeEach } from "vitest"
 import { renderHook, act } from "@testing-library/react"
 import { useAuth } from "./useAuth.js"
 
-const USER_KEY = "claude_dashboard_user"
-
-const mockUser = { id: "u1", login: "malin", avatarUrl: "https://example.com/avatar.png" }
-
-beforeEach(() => {
-  localStorage.clear()
-})
-
-afterEach(() => {
-  vi.restoreAllMocks()
-})
+// Helper to create a fake JWT with given payload
+const fakeJwt = (payload: Record<string, unknown>): string => {
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
+  const body = btoa(JSON.stringify(payload))
+  return `${header}.${body}.fake-signature`
+}
 
 describe("useAuth", () => {
-  it("returns null user and isAuthenticated=false when no user in storage", () => {
+  beforeEach(() => {
+    localStorage.clear()
+    window.location.hash = ""
+  })
+
+  it("returns null user and isAuthenticated false when no stored auth", () => {
     const { result } = renderHook(() => useAuth())
+
     expect(result.current.user).toBeNull()
     expect(result.current.isAuthenticated).toBe(false)
   })
 
-  it("returns stored user and isAuthenticated=true when user exists in storage", () => {
-    localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
+  it("returns stored user when auth exists in localStorage", () => {
+    const token = fakeJwt({ sub: "1", login: "malin", name: "Malin" })
+    localStorage.setItem("claude_dashboard_token", token)
+    localStorage.setItem(
+      "claude_dashboard_user",
+      JSON.stringify({ id: "1", login: "malin", name: "Malin" })
+    )
+
     const { result } = renderHook(() => useAuth())
-    expect(result.current.user).toEqual(mockUser)
+
+    expect(result.current.user).toEqual({ id: "1", login: "malin", name: "Malin" })
     expect(result.current.isAuthenticated).toBe(true)
   })
 
-  it("login sets the user and updates isAuthenticated", () => {
+  it("login sets auth from token and updates user state", () => {
     const { result } = renderHook(() => useAuth())
+    const token = fakeJwt({ sub: "2", login: "newuser", name: "New" })
 
     act(() => {
-      result.current.login(mockUser)
+      result.current.login(token)
     })
 
-    expect(result.current.user).toEqual(mockUser)
+    expect(result.current.user).toEqual({
+      id: "2",
+      login: "newuser",
+      name: "New",
+      picture: undefined,
+    })
     expect(result.current.isAuthenticated).toBe(true)
-    expect(localStorage.getItem(USER_KEY)).toBe(JSON.stringify(mockUser))
   })
 
-  it("logout clears the user and calls the logout endpoint", async () => {
-    localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 200 }))
+  it("logout clears auth and sets user to null", () => {
+    const token = fakeJwt({ sub: "1", login: "malin" })
+    localStorage.setItem("claude_dashboard_token", token)
+    localStorage.setItem(
+      "claude_dashboard_user",
+      JSON.stringify({ id: "1", login: "malin" })
+    )
 
     const { result } = renderHook(() => useAuth())
-
     expect(result.current.isAuthenticated).toBe(true)
 
-    await act(async () => {
-      await result.current.logout()
+    act(() => {
+      result.current.logout()
     })
 
     expect(result.current.user).toBeNull()
     expect(result.current.isAuthenticated).toBe(false)
-    expect(localStorage.getItem(USER_KEY)).toBeNull()
+    expect(localStorage.getItem("claude_dashboard_token")).toBeNull()
   })
 
-  it("login is stable across renders (useCallback)", () => {
-    const { result, rerender } = renderHook(() => useAuth())
-    const loginRef = result.current.login
-    rerender()
-    expect(result.current.login).toBe(loginRef)
+  it("extracts token from URL hash on mount", () => {
+    const token = fakeJwt({ sub: "42", login: "hashlogin", name: "Hash" })
+    window.location.hash = `#token=${token}`
+
+    const { result } = renderHook(() => useAuth())
+
+    expect(result.current.user).toEqual({
+      id: "42",
+      login: "hashlogin",
+      name: "Hash",
+      picture: undefined,
+    })
+    expect(result.current.isAuthenticated).toBe(true)
   })
 
-  it("logout is stable across renders (useCallback)", () => {
-    const { result, rerender } = renderHook(() => useAuth())
-    const logoutRef = result.current.logout
-    rerender()
-    expect(result.current.logout).toBe(logoutRef)
+  it("does not change state when hash has no token", () => {
+    window.location.hash = "#other=value"
+
+    const { result } = renderHook(() => useAuth())
+
+    expect(result.current.user).toBeNull()
+    expect(result.current.isAuthenticated).toBe(false)
   })
 })

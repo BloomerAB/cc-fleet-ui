@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "./hooks/useAuth.js"
 import { ErrorBoundary } from "./components/ErrorBoundary.js"
 import { Login } from "./pages/Login.js"
-import { AuthCallback } from "./pages/AuthCallback.js"
 import { Dashboard } from "./pages/Dashboard.js"
 import { TaskNew } from "./pages/TaskNew.js"
 import { TaskDetail } from "./pages/TaskDetail.js"
@@ -18,7 +17,6 @@ const Router = () => (
     <ErrorBoundary>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/"
           element={

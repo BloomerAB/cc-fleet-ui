@@ -8,7 +8,7 @@ const Login = () => (
         Sign in to manage your Claude sessions
       </p>
       <a
-        href="/api/auth/github"
+        href="/api/auth/login"
         className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
       >
         <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

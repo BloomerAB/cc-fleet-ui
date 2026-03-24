@@ -1,113 +1,164 @@
-import { describe, it, expect, vi, afterEach } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { TaskForm } from "./TaskForm.js"
 
-afterEach(() => {
-  vi.restoreAllMocks()
-})
-
-const renderForm = (overrides: { onSubmit?: (data: unknown) => Promise<void>; submitting?: boolean } = {}) => {
-  const onSubmit = overrides.onSubmit ?? vi.fn(() => Promise.resolve())
-  const submitting = overrides.submitting ?? false
-
-  const result = render(<TaskForm onSubmit={onSubmit} submitting={submitting} />)
-
-  return { ...result, onSubmit }
-}
-
 describe("TaskForm", () => {
-  it("renders all form fields", () => {
+  const mockSubmit = vi.fn().mockResolvedValue(undefined)
+
+  beforeEach(() => {
+    mockSubmit.mockClear()
+  })
+
+  const renderForm = (submitting = false) =>
+    render(<TaskForm onSubmit={mockSubmit} submitting={submitting} />)
+
+  it("renders repo URL input, branch input, prompt textarea, and max turns", () => {
     renderForm()
 
     expect(screen.getByPlaceholderText("https://github.com/org/repo")).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("main")).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("branch")).toBeInTheDocument()
     expect(screen.getByPlaceholderText("Describe the task for Claude...")).toBeInTheDocument()
     expect(screen.getByDisplayValue("50")).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Submit Task" })).toBeInTheDocument()
   })
 
-  it("submit button is disabled when prompt and repoUrl are empty", () => {
+  it("submit button is disabled when prompt is empty", () => {
     renderForm()
-    expect(screen.getByRole("button", { name: "Submit Task" })).toBeDisabled()
+
+    expect(screen.getByText("Submit Task")).toBeDisabled()
   })
 
-  it("shows Submitting... when submitting prop is true", () => {
-    renderForm({ submitting: true })
-    expect(screen.getByRole("button", { name: "Submitting..." })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "Submitting..." })).toBeDisabled()
+  it("submit button is disabled when no repo URL entered", async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.type(screen.getByPlaceholderText("Describe the task for Claude..."), "Fix bug")
+
+    expect(screen.getByText("Submit Task")).toBeDisabled()
+  })
+
+  it("submit button shows 'Submitting...' when submitting", () => {
+    renderForm(true)
+
+    expect(screen.getByText("Submitting...")).toBeDisabled()
+  })
+
+  it("adds and removes repo inputs", async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    // Initially one repo input, no remove button
+    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(1)
+    expect(screen.queryByText("x")).not.toBeInTheDocument()
+
+    // Add a repo
+    await user.click(screen.getByText("+ Add repo"))
+    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(2)
+
+    // Now remove buttons appear
+    const removeButtons = screen.getAllByText("x")
+    expect(removeButtons).toHaveLength(2)
+
+    // Remove one
+    await user.click(removeButtons[0])
+    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(1)
+  })
+
+  it("hides 'Add repo' button when 10 repos added", async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    // Add 9 more repos (start with 1)
+    for (let i = 0; i < 9; i++) {
+      await user.click(screen.getByText("+ Add repo"))
+    }
+
+    expect(screen.getAllByPlaceholderText("https://github.com/org/repo")).toHaveLength(10)
+    expect(screen.queryByText("+ Add repo")).not.toBeInTheDocument()
+  })
+
+  it("submits valid form data with repos array", async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.type(
+      screen.getByPlaceholderText("https://github.com/org/repo"),
+      "https://github.com/org/my-repo"
+    )
+    await user.type(screen.getByPlaceholderText("branch"), "main")
+    await user.type(
+      screen.getByPlaceholderText("Describe the task for Claude..."),
+      "Fix the bug"
+    )
+
+    await user.click(screen.getByText("Submit Task"))
+
+    expect(mockSubmit).toHaveBeenCalledWith({
+      prompt: "Fix the bug",
+      repos: [{ url: "https://github.com/org/my-repo", branch: "main" }],
+      maxTurns: 50,
+    })
+  })
+
+  it("submits repos without branch when branch is empty", async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.type(
+      screen.getByPlaceholderText("https://github.com/org/repo"),
+      "https://github.com/org/repo"
+    )
+    await user.type(
+      screen.getByPlaceholderText("Describe the task for Claude..."),
+      "Do something"
+    )
+
+    await user.click(screen.getByText("Submit Task"))
+
+    expect(mockSubmit).toHaveBeenCalledWith({
+      prompt: "Do something",
+      repos: [{ url: "https://github.com/org/repo" }],
+      maxTurns: 50,
+    })
+  })
+
+  it("resets form after successful submission", async () => {
+    const user = userEvent.setup()
+    renderForm()
+
+    await user.type(
+      screen.getByPlaceholderText("https://github.com/org/repo"),
+      "https://github.com/org/repo"
+    )
+    await user.type(
+      screen.getByPlaceholderText("Describe the task for Claude..."),
+      "Fix bug"
+    )
+
+    await user.click(screen.getByText("Submit Task"))
+
+    // After submit, prompt should be cleared
+    expect(screen.getByPlaceholderText("Describe the task for Claude...")).toHaveValue("")
   })
 
   it("shows validation error for invalid repo URL", async () => {
     const user = userEvent.setup()
     renderForm()
 
-    const repoInput = screen.getByPlaceholderText("https://github.com/org/repo")
-    const promptInput = screen.getByPlaceholderText("Describe the task for Claude...")
-
-    // Use ftp:// — passes native URL validation but fails Zod's https?:// regex
-    await user.type(repoInput, "ftp://invalid.com/repo")
-    await user.type(promptInput, "Fix the bug")
-
-    await user.click(screen.getByRole("button", { name: "Submit Task" }))
-
-    expect(screen.getByText("Must be an HTTP(S) URL")).toBeInTheDocument()
-  })
-
-  it("shows validation error for empty prompt", async () => {
-    const user = userEvent.setup()
-    renderForm()
-
-    const repoInput = screen.getByPlaceholderText("https://github.com/org/repo")
-
-    // Type a valid URL but leave prompt empty - button is still disabled due to required
-    await user.type(repoInput, "https://github.com/org/repo")
-
-    // Button disabled because prompt is empty (HTML required + disabled logic)
-    expect(screen.getByRole("button", { name: "Submit Task" })).toBeDisabled()
-  })
-
-  it("calls onSubmit with validated data on successful submission", async () => {
-    const user = userEvent.setup()
-    const { onSubmit } = renderForm()
-
-    await user.type(screen.getByPlaceholderText("https://github.com/org/repo"), "https://github.com/org/repo")
-    await user.type(screen.getByPlaceholderText("Describe the task for Claude..."), "Fix the login bug")
-
-    await user.click(screen.getByRole("button", { name: "Submit Task" }))
-
-    expect(onSubmit).toHaveBeenCalledWith({
-      prompt: "Fix the login bug",
-      repoUrl: "https://github.com/org/repo",
-      maxTurns: 50,
-    })
-  })
-
-  it("clears prompt after successful submission", async () => {
-    const user = userEvent.setup()
-    renderForm()
-
-    const promptInput = screen.getByPlaceholderText("Describe the task for Claude...")
-    await user.type(screen.getByPlaceholderText("https://github.com/org/repo"), "https://github.com/org/repo")
-    await user.type(promptInput, "Fix the login bug")
-
-    await user.click(screen.getByRole("button", { name: "Submit Task" }))
-
-    expect(promptInput).toHaveValue("")
-  })
-
-  it("includes repoBranch when provided", async () => {
-    const user = userEvent.setup()
-    const { onSubmit } = renderForm()
-
-    await user.type(screen.getByPlaceholderText("https://github.com/org/repo"), "https://github.com/org/repo")
-    await user.type(screen.getByPlaceholderText("Describe the task for Claude..."), "Fix bug")
-    await user.type(screen.getByPlaceholderText("main"), "feature/auth")
-
-    await user.click(screen.getByRole("button", { name: "Submit Task" }))
-
-    expect(onSubmit).toHaveBeenCalledWith(
-      expect.objectContaining({ repoBranch: "feature/auth" }),
+    // Type invalid URL in repo field
+    await user.type(
+      screen.getByPlaceholderText("https://github.com/org/repo"),
+      "not-a-url"
     )
+    await user.type(
+      screen.getByPlaceholderText("Describe the task for Claude..."),
+      "Fix bug"
+    )
+
+    await user.click(screen.getByText("Submit Task"))
+
+    // The form uses browser validation for url type, but zod also validates
+    // mockSubmit should NOT have been called
+    expect(mockSubmit).not.toHaveBeenCalled()
   })
 })

@@ -7,79 +7,115 @@ interface TaskFormProps {
   readonly submitting: boolean
 }
 
+const repoSchema = z.object({
+  url: z.string().url("Must be a valid URL"),
+  branch: z.string().max(200).optional().or(z.literal("")),
+})
+
 const taskSchema = z.object({
   prompt: z.string().min(1, "Task description is required").max(10000, "Task description too long"),
-  repoUrl: z.string().url("Must be a valid URL").regex(/^https?:\/\//, "Must be an HTTP(S) URL"),
-  repoBranch: z.string().max(200, "Branch name too long").optional().or(z.literal("")),
+  repos: z.array(repoSchema).min(1, "At least one repository is required").max(10),
   maxTurns: z.number().int("Must be a whole number").min(1, "Minimum 1 turn").max(200, "Maximum 200 turns"),
 })
 
+interface RepoInput {
+  url: string
+  branch: string
+}
+
 const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
   const [prompt, setPrompt] = useState("")
-  const [repoUrl, setRepoUrl] = useState("")
-  const [repoBranch, setRepoBranch] = useState("")
+  const [repos, setRepos] = useState<RepoInput[]>([{ url: "", branch: "" }])
   const [maxTurns, setMaxTurns] = useState(50)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+
+  const updateRepo = (index: number, field: keyof RepoInput, value: string) => {
+    setRepos((prev) => prev.map((r, i) => (i === index ? { ...r, [field]: value } : r)))
+  }
+
+  const addRepo = () => {
+    if (repos.length < 10) {
+      setRepos((prev) => [...prev, { url: "", branch: "" }])
+    }
+  }
+
+  const removeRepo = (index: number) => {
+    if (repos.length > 1) {
+      setRepos((prev) => prev.filter((_, i) => i !== index))
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setValidationErrors({})
 
-    const result = taskSchema.safeParse({
+    const parsed = taskSchema.safeParse({
       prompt,
-      repoUrl,
-      repoBranch: repoBranch || undefined,
+      repos: repos.map((r) => ({
+        url: r.url,
+        branch: r.branch || undefined,
+      })),
       maxTurns,
     })
 
-    if (!result.success) {
+    if (!parsed.success) {
       const errors: Record<string, string> = {}
-      for (const issue of result.error.issues) {
-        const key = issue.path[0]
-        if (typeof key === "string") {
-          errors[key] = issue.message
-        }
+      for (const issue of parsed.error.issues) {
+        const key = issue.path.join(".")
+        errors[key] = issue.message
       }
       setValidationErrors(errors)
       return
     }
 
-    await onSubmit(result.data)
+    await onSubmit(parsed.data)
     setPrompt("")
+    setRepos([{ url: "", branch: "" }])
   }
+
+  const hasRepoUrl = repos.some((r) => r.url.length > 0)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Repository URL
-        </label>
-        <input
-          type="url"
-          value={repoUrl}
-          onChange={(e) => setRepoUrl(e.target.value)}
-          placeholder="https://github.com/org/repo"
-          required
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-        />
-        {validationErrors["repoUrl"] && (
-          <p className="mt-1 text-xs text-red-600">{validationErrors["repoUrl"]}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Branch (optional)
-        </label>
-        <input
-          type="text"
-          value={repoBranch}
-          onChange={(e) => setRepoBranch(e.target.value)}
-          placeholder="main"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-        />
-        {validationErrors["repoBranch"] && (
-          <p className="mt-1 text-xs text-red-600">{validationErrors["repoBranch"]}</p>
+        <div className="mb-1 flex items-center justify-between">
+          <label className="block text-sm font-medium text-gray-700">Repositories</label>
+          {repos.length < 10 && (
+            <button type="button" onClick={addRepo} className="text-xs text-blue-600 hover:text-blue-800">
+              + Add repo
+            </button>
+          )}
+        </div>
+        {repos.map((repo, i) => (
+          <div key={i} className="mb-2 flex gap-2">
+            <input
+              type="url"
+              value={repo.url}
+              onChange={(e) => updateRepo(i, "url", e.target.value)}
+              placeholder="https://github.com/org/repo"
+              required
+              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+            <input
+              type="text"
+              value={repo.branch}
+              onChange={(e) => updateRepo(i, "branch", e.target.value)}
+              placeholder="branch"
+              className="w-28 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            />
+            {repos.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeRepo(i)}
+                className="px-2 text-sm text-red-500 hover:text-red-700"
+              >
+                x
+              </button>
+            )}
+          </div>
+        ))}
+        {validationErrors["repos"] && (
+          <p className="mt-1 text-xs text-red-600">{validationErrors["repos"]}</p>
         )}
       </div>
 
@@ -119,7 +155,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
 
       <button
         type="submit"
-        disabled={submitting || !prompt || !repoUrl}
+        disabled={submitting || !prompt || !hasRepoUrl}
         className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:bg-gray-400"
       >
         {submitting ? "Submitting..." : "Submit Task"}

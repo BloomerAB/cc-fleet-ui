@@ -23,11 +23,11 @@ const SessionCard = ({ session }: { readonly session: Session }) => (
     <div className="flex items-start justify-between">
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-gray-900">
-          {session.taskConfig.prompt.slice(0, 100)}
-          {session.taskConfig.prompt.length > 100 ? "..." : ""}
+          {session.prompt.slice(0, 100)}
+          {session.prompt.length > 100 ? "..." : ""}
         </p>
         <p className="mt-1 text-xs text-gray-500">
-          {extractRepoName(session.taskConfig.repoUrl)}
+          {session.repos.map((r) => extractRepoName(r.url)).join(", ")}
         </p>
       </div>
       <StatusBadge status={session.status} />

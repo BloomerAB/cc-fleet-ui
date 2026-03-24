@@ -48,15 +48,6 @@ const api = {
 
   cancelTask: (id: string): Promise<CancelTaskResponse> =>
     request(`/tasks/${id}/cancel`, { method: "POST" }),
-
-  exchangeCode: (code: string, state: string) =>
-    request<{ success: boolean; data: { token: string; user: { id: string; login: string; avatarUrl: string } } }>(
-      "/auth/github/callback",
-      {
-        method: "POST",
-        body: JSON.stringify({ code, state }),
-      },
-    ),
 }
 
 export { api }

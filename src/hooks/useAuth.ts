@@ -1,13 +1,19 @@
-import { useState, useCallback } from "react"
-import type { AuthUser } from "@bloomerab/claude-types"
-import { getUser, setAuth, clearAuth } from "../lib/auth.js"
+import { useState, useCallback, useEffect } from "react"
+import { type StoredUser, getUser, setAuth, clearAuth, extractTokenFromHash } from "../lib/auth.js"
 
 const useAuth = () => {
-  const [user, setUser] = useState<AuthUser | null>(getUser)
+  const [user, setUser] = useState<StoredUser | null>(getUser)
 
-  const login = useCallback((newUser: AuthUser, token: string) => {
-    setAuth(newUser, token)
-    setUser(newUser)
+  // Check for token in URL hash on mount (server redirect flow)
+  useEffect(() => {
+    if (extractTokenFromHash()) {
+      setUser(getUser())
+    }
+  }, [])
+
+  const login = useCallback((token: string) => {
+    setAuth(token)
+    setUser(getUser())
   }, [])
 
   const logout = useCallback(() => {
