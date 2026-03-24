@@ -44,20 +44,20 @@ const TaskDetail = () => {
   const currentStatus = status ?? session.status
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-3">
-          <Link to="/" className="text-gray-400 hover:text-gray-600">
+    <div className="min-h-screen bg-gray-950">
+      <header className="border-b border-gray-800 bg-gray-900">
+        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2">
+          <Link to="/" className="text-gray-500 hover:text-gray-300">
             &larr; Back
           </Link>
-          <h1 className="text-lg font-semibold text-gray-900">Task Detail</h1>
+          <h1 className="text-sm font-medium text-gray-300">CC Fleet</h1>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-6">
-        <div className="mb-4 flex items-start justify-between">
+      <main className="mx-auto max-w-6xl px-4 py-3">
+        <div className="mb-3 flex items-start justify-between">
           <div>
-            <p className="text-sm text-gray-900">{session.prompt}</p>
+            <p className="text-sm text-gray-200">{session.prompt}</p>
             <p className="mt-1 text-xs text-gray-500">
               {session.repoSource.mode === "direct"
                 ? session.repoSource.repos.map((r) => r.url.replace(/^https?:\/\//, "").replace(/\.git$/, "")).join(", ")
@@ -71,7 +71,7 @@ const TaskDetail = () => {
             {(currentStatus === "running" || currentStatus === "waiting_for_input") && (
               <button
                 onClick={cancel}
-                className="rounded-lg border border-red-300 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
+                className="rounded border border-red-800 px-3 py-1.5 text-xs text-red-400 hover:bg-red-900/30"
               >
                 Cancel
               </button>
@@ -80,10 +80,9 @@ const TaskDetail = () => {
         </div>
 
         {session.result && (
-          <div className="mb-4 rounded-lg bg-white p-4 shadow-sm">
-            <h3 className="text-sm font-medium text-gray-900">Result</h3>
-            <p className="mt-1 text-sm text-gray-600">{session.result.summary}</p>
-            <div className="mt-2 flex gap-4 text-xs text-gray-400">
+          <div className="mb-3 rounded-lg border border-gray-800 bg-gray-900 p-4">
+            <p className="text-sm text-gray-200">{session.result.summary}</p>
+            <div className="mt-2 flex gap-4 text-xs text-gray-500">
               {session.result.costUsd !== undefined && (
                 <span>Cost: ${session.result.costUsd.toFixed(2)}</span>
               )}
@@ -95,7 +94,7 @@ const TaskDetail = () => {
                   href={session.result.prUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-orange-600 hover:underline"
+                  className="text-orange-500 hover:underline"
                 >
                   View PR
                 </a>
