@@ -2,7 +2,7 @@ import { describe, it, expect, vi, afterEach } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router-dom"
 import { SessionCard, timeAgo, extractRepoName } from "./SessionCard.js"
-import type { Session } from "@bloomer-ab/claude-types"
+import type { Session } from "@bloomerab/claude-types"
 
 afterEach(() => {
   vi.restoreAllMocks()

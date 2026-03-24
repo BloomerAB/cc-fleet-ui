@@ -4,7 +4,7 @@ import type {
   ListTasksResponse,
   GetTaskResponse,
   CancelTaskResponse,
-} from "@bloomer-ab/claude-types"
+} from "@bloomerab/claude-types"
 
 const BASE_URL = "/api"
 

@@ -1,4 +1,4 @@
-import type { SessionStatus } from "@bloomer-ab/claude-types"
+import type { SessionStatus } from "@bloomerab/claude-types"
 
 const STATUS_STYLES: Record<SessionStatus, string> = {
   queued: "bg-yellow-100 text-yellow-800",

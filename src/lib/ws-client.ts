@@ -1,7 +1,7 @@
 import type {
   ManagerToDashboardMessage,
   DashboardToManagerMessage,
-} from "@bloomer-ab/claude-types"
+} from "@bloomerab/claude-types"
 
 type MessageHandler = (message: ManagerToDashboardMessage) => void
 

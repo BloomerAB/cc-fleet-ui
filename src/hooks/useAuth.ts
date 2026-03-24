@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import type { AuthUser } from "@bloomer-ab/claude-types"
+import type { AuthUser } from "@bloomerab/claude-types"
 import { getUser, setAuth, clearAuth } from "../lib/auth.js"
 
 const useAuth = () => {

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { z } from "zod"
-import type { CreateTaskRequest } from "@bloomer-ab/claude-types"
+import type { CreateTaskRequest } from "@bloomerab/claude-types"
 
 interface TaskFormProps {
   readonly onSubmit: (data: CreateTaskRequest) => Promise<void>

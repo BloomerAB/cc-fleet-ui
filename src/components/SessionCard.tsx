@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import type { Session } from "@bloomer-ab/claude-types"
+import type { Session } from "@bloomerab/claude-types"
 import { StatusBadge } from "./StatusBadge.js"
 
 const timeAgo = (dateStr: string): string => {

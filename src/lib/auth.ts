@@ -1,4 +1,4 @@
-import type { AuthUser } from "@bloomer-ab/claude-types"
+import type { AuthUser } from "@bloomerab/claude-types"
 
 const USER_KEY = "claude_dashboard_user"
 
