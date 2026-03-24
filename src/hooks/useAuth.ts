@@ -5,13 +5,13 @@ import { getUser, setAuth, clearAuth } from "../lib/auth.js"
 const useAuth = () => {
   const [user, setUser] = useState<AuthUser | null>(getUser)
 
-  const login = useCallback((newUser: AuthUser) => {
-    setAuth(newUser)
+  const login = useCallback((newUser: AuthUser, token: string) => {
+    setAuth(newUser, token)
     setUser(newUser)
   }, [])
 
-  const logout = useCallback(async () => {
-    await clearAuth()
+  const logout = useCallback(() => {
+    clearAuth()
     setUser(null)
   }, [])
 

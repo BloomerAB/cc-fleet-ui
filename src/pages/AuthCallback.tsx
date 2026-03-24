@@ -31,11 +31,14 @@ const AuthCallback = () => {
       .then((response) => {
         clearTimeout(timeout)
         if (controller.signal.aborted) return
-        login({
-          id: response.data.user.id,
-          login: response.data.user.login,
-          avatarUrl: response.data.user.avatarUrl,
-        })
+        login(
+          {
+            id: response.data.user.id,
+            login: response.data.user.login,
+            avatarUrl: response.data.user.avatarUrl,
+          },
+          response.data.token,
+        )
         navigate("/", { replace: true })
       })
       .catch((err) => {

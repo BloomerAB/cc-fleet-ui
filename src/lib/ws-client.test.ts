@@ -44,6 +44,7 @@ let latestWs: MockWebSocket
 
 beforeEach(() => {
   vi.useFakeTimers()
+  localStorage.setItem("claude_dashboard_token", "test-jwt-token")
   vi.stubGlobal("WebSocket", class extends MockWebSocket {
     constructor(url: string) {
       super(url)
@@ -55,6 +56,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers()
   vi.restoreAllMocks()
+  localStorage.clear()
 })
 
 describe("createWsClient", () => {
@@ -70,22 +72,27 @@ describe("createWsClient", () => {
 })
 
 describe("connect", () => {
-  it("creates a WebSocket with correct URL based on location", async () => {
+  it("creates a WebSocket with correct URL including token", async () => {
     const client = createWsClient()
     client.connect()
 
     // jsdom defaults to http://localhost, so ws:// is used
-    expect(latestWs.url).toContain("/ws/dashboard")
+    expect(latestWs.url).toContain("/ws/dashboard?token=test-jwt-token")
   })
 
-  it("sends auth message on open", async () => {
+  it("does not connect when no token is available", async () => {
+    localStorage.clear()
+    let wsCreated = false
+    vi.stubGlobal("WebSocket", class extends MockWebSocket {
+      constructor(url: string) {
+        super(url)
+        wsCreated = true
+      }
+    })
     const client = createWsClient()
     client.connect()
 
-    // Flush microtask to trigger onopen
-    await vi.advanceTimersByTimeAsync(0)
-
-    expect(latestWs.send).toHaveBeenCalledWith(JSON.stringify({ type: "auth" }))
+    expect(wsCreated).toBe(false)
   })
 })
 
@@ -180,8 +187,8 @@ describe("send helpers", () => {
 
     client.subscribeSessions(["s1"])
 
-    // The first call is the auth message, there should be no further send calls
-    expect(latestWs.send).toHaveBeenCalledTimes(1)
+    // No send calls should have been made (onopen doesn't call send anymore unless there are subscriptions)
+    expect(latestWs.send).not.toHaveBeenCalled()
   })
 })
 
@@ -205,7 +212,7 @@ describe("reconnection", () => {
   it("stops reconnecting after MAX_RECONNECT_ATTEMPTS (10)", async () => {
     // Override mock: no auto-open so reconnectAttempts accumulates
     let wsCount = 0
-    vi.stubGlobal("WebSocket", class {
+    vi.stubGlobal("WebSocket", class MockWS {
       static readonly CONNECTING = 0
       static readonly OPEN = 1
       static readonly CLOSING = 2

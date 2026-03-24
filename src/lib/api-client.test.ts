@@ -5,10 +5,12 @@ const mockFetch = vi.fn()
 
 beforeEach(() => {
   vi.spyOn(globalThis, "fetch").mockImplementation(mockFetch)
+  localStorage.setItem("claude_dashboard_token", "test-jwt-token")
 })
 
 afterEach(() => {
   vi.restoreAllMocks()
+  localStorage.clear()
 })
 
 const jsonResponse = (body: unknown, status = 200) =>
@@ -18,7 +20,7 @@ const jsonResponse = (body: unknown, status = 200) =>
   })
 
 describe("api.createTask", () => {
-  it("sends POST to /api/tasks with JSON body and credentials: include", async () => {
+  it("sends POST to /api/tasks with JSON body and Authorization header", async () => {
     const payload = { prompt: "Fix the bug", repoUrl: "https://github.com/org/repo" }
     const responseBody = { success: true, data: { id: "t1" } }
     mockFetch.mockResolvedValue(jsonResponse(responseBody))
@@ -28,8 +30,10 @@ describe("api.createTask", () => {
     expect(result).toEqual(responseBody)
     expect(mockFetch).toHaveBeenCalledWith("/api/tasks", {
       method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer test-jwt-token",
+      },
       body: JSON.stringify(payload),
     })
   })
@@ -44,8 +48,10 @@ describe("api.listTasks", () => {
 
     expect(result).toEqual(responseBody)
     expect(mockFetch).toHaveBeenCalledWith("/api/tasks?page=1&limit=20", {
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer test-jwt-token",
+      },
     })
   })
 
@@ -56,7 +62,9 @@ describe("api.listTasks", () => {
 
     expect(mockFetch).toHaveBeenCalledWith(
       "/api/tasks?page=3&limit=50",
-      expect.objectContaining({ credentials: "include" }),
+      expect.objectContaining({
+        headers: expect.objectContaining({ "Authorization": "Bearer test-jwt-token" }),
+      }),
     )
   })
 })
@@ -71,7 +79,9 @@ describe("api.getTask", () => {
     expect(result).toEqual(responseBody)
     expect(mockFetch).toHaveBeenCalledWith(
       "/api/tasks/t1",
-      expect.objectContaining({ credentials: "include" }),
+      expect.objectContaining({
+        headers: expect.objectContaining({ "Authorization": "Bearer test-jwt-token" }),
+      }),
     )
   })
 })
@@ -86,14 +96,17 @@ describe("api.cancelTask", () => {
     expect(result).toEqual(responseBody)
     expect(mockFetch).toHaveBeenCalledWith(
       "/api/tasks/t1/cancel",
-      expect.objectContaining({ method: "POST", credentials: "include" }),
+      expect.objectContaining({
+        method: "POST",
+        headers: expect.objectContaining({ "Authorization": "Bearer test-jwt-token" }),
+      }),
     )
   })
 })
 
 describe("api.exchangeCode", () => {
   it("sends POST to /api/auth/github/callback with code and state", async () => {
-    const responseBody = { success: true, data: { user: { id: "u1", login: "malin", avatarUrl: "https://x.com/a" } } }
+    const responseBody = { success: true, data: { token: "jwt", user: { id: "u1", login: "malin", avatarUrl: "https://x.com/a" } } }
     mockFetch.mockResolvedValue(jsonResponse(responseBody))
 
     const result = await api.exchangeCode("abc123", "state456")
@@ -104,6 +117,22 @@ describe("api.exchangeCode", () => {
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ code: "abc123", state: "state456" }),
+      }),
+    )
+  })
+})
+
+describe("api without token", () => {
+  it("does not send Authorization header when no token stored", async () => {
+    localStorage.clear()
+    mockFetch.mockResolvedValue(jsonResponse({ success: true, data: [] }))
+
+    await api.listTasks()
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      "/api/tasks?page=1&limit=20",
+      expect.objectContaining({
+        headers: { "Content-Type": "application/json" },
       }),
     )
   })

@@ -5,17 +5,24 @@ import type {
   GetTaskResponse,
   CancelTaskResponse,
 } from "@bloomerab/claude-types"
+import { getToken } from "./auth.js"
 
 const BASE_URL = "/api"
 
 const request = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
+  const token = getToken()
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  }
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers,
   })
 
   if (!response.ok) {
@@ -43,7 +50,7 @@ const api = {
     request(`/tasks/${id}/cancel`, { method: "POST" }),
 
   exchangeCode: (code: string, state: string) =>
-    request<{ success: boolean; data: { user: { id: string; login: string; avatarUrl: string } } }>(
+    request<{ success: boolean; data: { token: string; user: { id: string; login: string; avatarUrl: string } } }>(
       "/auth/github/callback",
       {
         method: "POST",

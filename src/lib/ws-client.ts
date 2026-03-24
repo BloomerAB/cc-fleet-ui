@@ -2,6 +2,7 @@ import type {
   ManagerToDashboardMessage,
   DashboardToManagerMessage,
 } from "@bloomerab/claude-types"
+import { getToken } from "./auth.js"
 
 type MessageHandler = (message: ManagerToDashboardMessage) => void
 
@@ -12,19 +13,22 @@ const createWsClient = () => {
   let reconnectTimer: ReturnType<typeof setTimeout> | null = null
   let reconnectAttempts = 0
   const handlers = new Set<MessageHandler>()
+  let currentSubscriptions: readonly string[] = []
 
   const connect = () => {
+    const token = getToken()
+    if (!token) return
+
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-    const url = `${protocol}//${window.location.host}/ws/dashboard`
+    const url = `${protocol}//${window.location.host}/ws/dashboard?token=${encodeURIComponent(token)}`
 
     ws = new WebSocket(url)
 
     ws.onopen = () => {
       reconnectAttempts = 0
-      // Authenticate via first message; httpOnly cookie handles the HTTP upgrade,
-      // but we send an explicit auth message so the server can verify the session.
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: "auth" }))
+      // Resubscribe to sessions after reconnect
+      if (currentSubscriptions.length > 0) {
+        send({ type: "subscribe", sessionIds: currentSubscriptions })
       }
     }
 
@@ -69,6 +73,7 @@ const createWsClient = () => {
   }
 
   const subscribeSessions = (sessionIds: readonly string[]) => {
+    currentSubscriptions = sessionIds
     send({ type: "subscribe", sessionIds })
   }
 

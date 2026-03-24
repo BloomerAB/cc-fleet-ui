@@ -1,16 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, beforeEach } from "vitest"
 import { getUser, getToken, setAuth, clearAuth, isAuthenticated, getGitHubLoginUrl } from "./auth.js"
 
 const USER_KEY = "claude_dashboard_user"
+const TOKEN_KEY = "claude_dashboard_token"
 
 const mockUser = { id: "u1", login: "malin", avatarUrl: "https://example.com/avatar.png" }
+const mockToken = "eyJhbGciOiJIUzI1NiJ9.test.signature"
 
 beforeEach(() => {
   localStorage.clear()
-})
-
-afterEach(() => {
-  vi.restoreAllMocks()
 })
 
 describe("getUser", () => {
@@ -30,45 +28,32 @@ describe("getUser", () => {
 })
 
 describe("getToken", () => {
-  it("always returns null (JWT is httpOnly cookie)", () => {
+  it("returns null when no token is stored", () => {
     expect(getToken()).toBeNull()
+  })
+
+  it("returns the stored token", () => {
+    localStorage.setItem(TOKEN_KEY, mockToken)
+    expect(getToken()).toBe(mockToken)
   })
 })
 
 describe("setAuth", () => {
-  it("stores user as JSON in localStorage", () => {
-    setAuth(mockUser)
+  it("stores user and token in localStorage", () => {
+    setAuth(mockUser, mockToken)
     expect(localStorage.getItem(USER_KEY)).toBe(JSON.stringify(mockUser))
+    expect(localStorage.getItem(TOKEN_KEY)).toBe(mockToken)
   })
 })
 
 describe("clearAuth", () => {
-  it("removes user from localStorage", async () => {
-    localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
+  it("removes user and token from localStorage", () => {
+    setAuth(mockUser, mockToken)
 
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 200 }))
-
-    await clearAuth()
+    clearAuth()
 
     expect(localStorage.getItem(USER_KEY)).toBeNull()
-  })
-
-  it("calls the logout endpoint with POST and credentials: include", async () => {
-    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(null, { status: 200 }))
-
-    await clearAuth()
-
-    expect(fetchSpy).toHaveBeenCalledWith("/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-    })
-  })
-
-  it("does not throw when logout fetch fails", async () => {
-    vi.spyOn(globalThis, "fetch").mockRejectedValue(new Error("Network error"))
-
-    await expect(clearAuth()).resolves.toBeUndefined()
-    expect(localStorage.getItem(USER_KEY)).toBeNull()
+    expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
   })
 })
 
@@ -77,8 +62,13 @@ describe("isAuthenticated", () => {
     expect(isAuthenticated()).toBe(false)
   })
 
-  it("returns true when a valid user is stored", () => {
+  it("returns false when only user is stored but no token", () => {
     localStorage.setItem(USER_KEY, JSON.stringify(mockUser))
+    expect(isAuthenticated()).toBe(false)
+  })
+
+  it("returns true when both user and token are stored", () => {
+    setAuth(mockUser, mockToken)
     expect(isAuthenticated()).toBe(true)
   })
 })
