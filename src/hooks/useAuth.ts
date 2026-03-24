@@ -5,8 +5,10 @@ const useAuth = () => {
   const [user, setUser] = useState<StoredUser | null>(getUser)
 
   // Check for token in URL hash on mount (server redirect flow)
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- intentional one-time check
   useEffect(() => {
-    if (extractTokenFromHash()) {
+    const found = extractTokenFromHash()
+    if (found) {
       setUser(getUser())
     }
   }, [])

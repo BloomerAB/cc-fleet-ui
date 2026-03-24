@@ -44,4 +44,6 @@ const SessionCard = ({ session }: { readonly session: Session }) => (
   </Link>
 )
 
-export { SessionCard, timeAgo, extractRepoName }
+export { SessionCard }
+// exported for tests
+export { timeAgo, extractRepoName } // eslint-disable-line react-refresh/only-export-components
