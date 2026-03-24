@@ -64,4 +64,7 @@ const extractTokenFromHash = (): boolean => {
   return true
 }
 
+// Run on module load — before React renders — so ProtectedRoute sees the token
+extractTokenFromHash()
+
 export { type StoredUser, getUser, getToken, setAuth, clearAuth, isAuthenticated, getLoginUrl, extractTokenFromHash }

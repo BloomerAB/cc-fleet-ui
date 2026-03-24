@@ -73,9 +73,12 @@ describe("useAuth", () => {
     expect(localStorage.getItem("claude_dashboard_token")).toBeNull()
   })
 
-  it("extracts token from URL hash on mount", () => {
+  it("extracts token from URL hash via extractTokenFromHash", async () => {
+    const { extractTokenFromHash } = await import("../lib/auth.js")
     const token = fakeJwt({ sub: "42", login: "hashlogin", name: "Hash" })
     window.location.hash = `#token=${token}`
+
+    extractTokenFromHash()
 
     const { result } = renderHook(() => useAuth())
 
