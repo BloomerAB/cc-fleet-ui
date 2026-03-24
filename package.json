@@ -1,5 +1,5 @@
 {
-  "name": "claude-dashboard",
+  "name": "cc-fleet-ui",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@bloomerab/claude-types": "^0.2.0",
+    "@bloomerab/cc-fleet-types": "^0.2.0",
     "@tailwindcss/vite": "^4.1.18",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

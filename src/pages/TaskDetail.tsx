@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import type { Session } from "@bloomerab/claude-types"
+import type { Session } from "@bloomerab/cc-fleet-types"
 import { api } from "../lib/api-client.js"
 import { useSessionSocket } from "../hooks/useSessionSocket.js"
 import { StatusBadge } from "../components/StatusBadge.js"

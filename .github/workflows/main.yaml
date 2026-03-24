@@ -32,7 +32,7 @@ jobs:
       - name: Build and push Docker image
         uses: bloomerab/reusable-workflows/.github/actions/docker-build-push@main
         with:
-          image-name: claude-dashboard
+          image-name: cc-fleet-ui
           registry: ghcr.io
           organization: bloomerab
           build-context: "."

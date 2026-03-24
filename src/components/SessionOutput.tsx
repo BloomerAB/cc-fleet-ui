@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import type { DashboardOutputMessage } from "@bloomerab/claude-types"
+import type { DashboardOutputMessage } from "@bloomerab/cc-fleet-types"
 
 interface SessionOutputProps {
   readonly outputs: readonly DashboardOutputMessage[]

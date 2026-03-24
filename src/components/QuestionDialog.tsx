@@ -1,5 +1,5 @@
 import { useState } from "react"
-import type { Question } from "@bloomerab/claude-types"
+import type { Question } from "@bloomerab/cc-fleet-types"
 
 interface QuestionDialogProps {
   readonly questions: readonly Question[]

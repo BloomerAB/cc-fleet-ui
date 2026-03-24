@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { render, screen } from "@testing-library/react"
 import { SessionOutput } from "./SessionOutput.js"
-import type { DashboardOutputMessage } from "@bloomerab/claude-types"
+import type { DashboardOutputMessage } from "@bloomerab/cc-fleet-types"
 
 const makeOutput = (overrides: Partial<DashboardOutputMessage> = {}): DashboardOutputMessage => ({
   type: "output",

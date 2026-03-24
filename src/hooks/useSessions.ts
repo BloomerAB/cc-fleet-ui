@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-import type { Session } from "@bloomerab/claude-types"
+import type { Session } from "@bloomerab/cc-fleet-types"
 import { api } from "../lib/api-client.js"
 
 const useSessions = () => {

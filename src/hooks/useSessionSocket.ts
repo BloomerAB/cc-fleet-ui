@@ -4,7 +4,7 @@ import type {
   DashboardOutputMessage,
   Question,
   SessionStatus,
-} from "@bloomerab/claude-types"
+} from "@bloomerab/cc-fleet-types"
 import { createWsClient, type WsClient } from "../lib/ws-client.js"
 
 interface SessionSocketState {
