@@ -42,6 +42,26 @@ const TaskDetail = () => {
       .finally(() => setLoading(false))
   }, [id])
 
+  const handleRetry = useCallback(async () => {
+    if (!session || retrying) return
+    setRetrying(true)
+    try {
+      const response = await api.createTask({
+        prompt: session.prompt,
+        repoSource: session.repoSource,
+        ...(session.rules ? { rules: session.rules } : {}),
+        permissionMode: session.permissionMode,
+        model: session.model,
+        maxTurns: session.maxTurns,
+      })
+      if (response.success && response.data) {
+        navigate(`/tasks/${response.data.id}`)
+      }
+    } catch {
+      setRetrying(false)
+    }
+  }, [session, retrying, navigate])
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-950">
@@ -68,26 +88,6 @@ const TaskDetail = () => {
     sendFollowUp(followUpText.trim())
     setFollowUpText("")
   }
-
-  const handleRetry = useCallback(async () => {
-    if (!session || retrying) return
-    setRetrying(true)
-    try {
-      const response = await api.createTask({
-        prompt: session.prompt,
-        repoSource: session.repoSource,
-        ...(session.rules ? { rules: session.rules } : {}),
-        permissionMode: session.permissionMode,
-        model: session.model,
-        maxTurns: session.maxTurns,
-      })
-      if (response.success && response.data) {
-        navigate(`/tasks/${response.data.id}`)
-      }
-    } catch {
-      setRetrying(false)
-    }
-  }, [session, retrying, navigate])
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-950">
