@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useEffect, useState, useCallback } from "react"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import type { Session, DashboardOutputMessage } from "../types/index.js"
 import { api } from "../lib/api-client.js"
 import { useSessionSocket } from "../hooks/useSessionSocket.js"
@@ -9,9 +9,11 @@ import { QuestionDialog } from "../components/QuestionDialog.js"
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [followUpText, setFollowUpText] = useState("")
+  const [retrying, setRetrying] = useState(false)
   const [initialOutputs, setInitialOutputs] = useState<DashboardOutputMessage[]>([])
   const { outputs, questions, status, result: liveResult, sendAnswer, cancel, sendFollowUp, endSession } = useSessionSocket(id ?? null, initialOutputs)
 
@@ -67,6 +69,26 @@ const TaskDetail = () => {
     setFollowUpText("")
   }
 
+  const handleRetry = useCallback(async () => {
+    if (!session || retrying) return
+    setRetrying(true)
+    try {
+      const response = await api.createTask({
+        prompt: session.prompt,
+        repoSource: session.repoSource,
+        ...(session.rules ? { rules: session.rules } : {}),
+        permissionMode: session.permissionMode,
+        model: session.model,
+        maxTurns: session.maxTurns,
+      })
+      if (response.success && response.data) {
+        navigate(`/tasks/${response.data.id}`)
+      }
+    } catch {
+      setRetrying(false)
+    }
+  }, [session, retrying, navigate])
+
   return (
     <div className="flex min-h-screen flex-col bg-gray-950">
       <header className="border-b border-gray-800 bg-gray-900">
@@ -118,6 +140,15 @@ const TaskDetail = () => {
                 className="rounded border border-red-800 px-3 py-1.5 text-xs text-red-400 hover:bg-red-900/30"
               >
                 Cancel
+              </button>
+            )}
+            {(currentStatus === "failed" || currentStatus === "cancelled") && (
+              <button
+                onClick={handleRetry}
+                disabled={retrying}
+                className="rounded border border-claude px-3 py-1.5 text-xs text-claude hover:bg-claude/10 disabled:opacity-50"
+              >
+                {retrying ? "Retrying..." : "Retry"}
               </button>
             )}
           </div>
