@@ -63,15 +63,18 @@ const TaskDetail = () => {
   }, [session, retrying, navigate])
 
   const [resuming, setResuming] = useState(false)
+  const [resumeError, setResumeError] = useState<string | null>(null)
   const handleResume = useCallback(async () => {
     if (!session || !id || resuming) return
     setResuming(true)
+    setResumeError(null)
     try {
       const response = await api.resumeTask(id)
       if (response.success && response.data) {
         navigate(`/tasks/${response.data.id}`)
       }
-    } catch {
+    } catch (err) {
+      setResumeError(err instanceof Error ? err.message : "Resume failed")
       setResuming(false)
     }
   }, [session, id, resuming, navigate])
@@ -174,6 +177,9 @@ const TaskDetail = () => {
                 >
                   {retrying ? "Retrying..." : "Retry"}
                 </button>
+                {resumeError && (
+                  <span className="text-xs text-red-400">{resumeError}</span>
+                )}
               </>
             )}
           </div>
