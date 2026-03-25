@@ -25,6 +25,7 @@ export type {
   DashboardSubscribeMessage,
   Question,
   QuestionOption,
+  RunnerResult,
   SdkMessage,
 } from "./messages.js"
 
