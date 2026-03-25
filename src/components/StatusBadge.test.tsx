@@ -18,7 +18,7 @@ const expectedLabels: Record<SessionStatus, string> = {
   running: "Running",
   completed: "Completed",
   failed: "Failed",
-  waiting_for_input: "Waiting for Input",
+  waiting_for_input: "Ready",
   timed_out: "Timed Out",
   cancelled: "Cancelled",
 }
