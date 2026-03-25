@@ -6,6 +6,7 @@ const Settings = () => {
   const [hasKey, setHasKey] = useState(false)
   const [apiKey, setApiKey] = useState("")
   const [rules, setRules] = useState("")
+  const [claudeSettings, setClaudeSettings] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -16,6 +17,7 @@ const Settings = () => {
         if (res.success && res.data) {
           setHasKey(res.data.hasAnthropicKey)
           setRules(res.data.rules ?? "")
+          setClaudeSettings(res.data.claudeSettings ?? "")
         }
       })
       .finally(() => setLoading(false))
@@ -156,6 +158,50 @@ const Settings = () => {
               className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:bg-gray-400"
             >
               {saving ? "Saving..." : "Save Rules"}
+            </button>
+          </form>
+        </div>
+
+        {/* Claude Settings (settings.json) */}
+        <div className="rounded-lg bg-white p-6 shadow-sm">
+          <h2 className="mb-1 text-sm font-semibold text-gray-900">Claude Settings</h2>
+          <p className="mb-4 text-xs text-gray-500">
+            Override .claude/settings.json for your sessions. Default tool permissions are always included.
+            Use JSON format.
+          </p>
+
+          <form onSubmit={async (e) => {
+            e.preventDefault()
+            setSaving(true)
+            setMessage(null)
+            try {
+              if (claudeSettings.trim()) {
+                JSON.parse(claudeSettings) // validate JSON
+              }
+              await api.updateSettings({ claudeSettings })
+              setMessage({ type: "success", text: "Claude settings saved." })
+            } catch (err) {
+              setMessage({
+                type: "error",
+                text: err instanceof SyntaxError ? "Invalid JSON" : (err instanceof Error ? err.message : "Failed to save"),
+              })
+            } finally {
+              setSaving(false)
+            }
+          }} className="space-y-3">
+            <textarea
+              value={claudeSettings}
+              onChange={(e) => setClaudeSettings(e.target.value)}
+              placeholder={'{\n  "permissions": {\n    "allow": ["mcp__my-server__*"]\n  }\n}'}
+              rows={8}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-orange-500 focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:bg-gray-400"
+            >
+              {saving ? "Saving..." : "Save Settings"}
             </button>
           </form>
         </div>
