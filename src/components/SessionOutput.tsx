@@ -44,7 +44,7 @@ const ToolBlock = ({ toolName, text }: { readonly toolName: string; readonly tex
 }
 
 const AssistantMessage = ({ text }: { readonly text: string }) => (
-  <div className="my-3 border-l-2 border-orange-500/50 pl-3">
+  <div className="my-3 border-l-2 border-claude/50 pl-3">
     <pre className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-100">{text}</pre>
   </div>
 )
@@ -72,7 +72,7 @@ const SessionOutput = ({ outputs }: SessionOutputProps) => {
       {outputs.length === 0 && (
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
-            <div className="mb-2 text-2xl text-orange-500/30">&#9679;</div>
+            <div className="mb-2 text-2xl text-claude/30">&#9679;</div>
             <p className="text-sm text-gray-600">Waiting for output...</p>
           </div>
         </div>

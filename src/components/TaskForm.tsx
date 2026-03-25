@@ -166,12 +166,12 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
+        <div className="rounded-lg bg-red-900/30 border border-red-800 px-4 py-3 text-sm text-red-400">{error}</div>
       )}
 
       {/* Mode selector */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-700">Repo Source</label>
+        <label className="mb-2 block text-sm font-medium text-gray-300">Repo Source</label>
         <div className="grid grid-cols-3 gap-2">
           {(["discovery", "org", "direct"] as const).map((m) => (
             <button
@@ -180,8 +180,8 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
               onClick={() => setMode(m)}
               className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
                 mode === m
-                  ? "border-orange-500 bg-orange-50 text-orange-700"
-                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  ? "border-claude bg-claude/10 text-claude-light"
+                  : "border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600"
               }`}
             >
               {MODE_LABELS[m]}
@@ -195,9 +195,9 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
       {mode === "direct" && (
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <label className="block text-sm font-medium text-gray-700">Repositories</label>
+            <label className="block text-sm font-medium text-gray-300">Repositories</label>
             {repos.length < 10 && (
-              <button type="button" onClick={addRepo} className="text-xs text-orange-600 hover:text-orange-800">
+              <button type="button" onClick={addRepo} className="text-xs text-claude hover:text-claude-light">
                 + Add repo
               </button>
             )}
@@ -209,20 +209,20 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
                 value={repo.url}
                 onChange={(e) => updateRepo(i, "url", e.target.value)}
                 placeholder="https://github.com/org/repo"
-                className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                className="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
               />
               <input
                 type="text"
                 value={repo.branch}
                 onChange={(e) => updateRepo(i, "branch", e.target.value)}
                 placeholder="branch"
-                className="w-28 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                className="w-28 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
               />
               {repos.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeRepo(i)}
-                  className="px-2 text-sm text-red-500 hover:text-red-700"
+                  className="px-2 text-sm text-red-400 hover:text-red-300"
                 >
                   x
                 </button>
@@ -235,14 +235,14 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
       {/* Org/Discovery mode: org selector */}
       {mode !== "direct" && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Organization</label>
+          <label className="mb-1 block text-sm font-medium text-gray-300">Organization</label>
           {orgsLoading ? (
             <div className="py-2 text-sm text-gray-500">Loading organizations...</div>
           ) : (
             <select
               value={selectedOrg}
               onChange={(e) => setSelectedOrg(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-claude focus:outline-none"
             >
               {orgs.map((org) => (
                 <option key={org.login} value={org.login}>
@@ -257,27 +257,27 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
       {/* Org mode: pattern filter + preview */}
       {mode === "org" && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Pattern filter <span className="text-gray-400">(optional glob)</span>
+          <label className="mb-1 block text-sm font-medium text-gray-300">
+            Pattern filter <span className="text-gray-500">(optional glob)</span>
           </label>
           <input
             type="text"
             value={pattern}
             onChange={(e) => setPattern(e.target.value)}
             placeholder="e.g. service-* or *-api"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
           />
           {previewLoading && <p className="mt-1 text-xs text-gray-500">Loading repos...</p>}
           {!previewLoading && previewRepos.length > 0 && (
-            <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-2">
-              <p className="mb-1 text-xs font-medium text-gray-500">
+            <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-gray-700 bg-gray-800 p-2">
+              <p className="mb-1 text-xs font-medium text-gray-400">
                 {previewRepos.length} repo{previewRepos.length !== 1 ? "s" : ""} will be cloned:
               </p>
               {previewRepos.map((repo) => (
                 <div key={repo.name} className="flex items-center gap-2 py-0.5 text-xs">
-                  <span className="font-mono text-gray-700">{repo.name}</span>
+                  <span className="font-mono text-gray-300">{repo.name}</span>
                   {repo.language && (
-                    <span className="text-gray-400">{repo.language}</span>
+                    <span className="text-gray-500">{repo.language}</span>
                   )}
                 </div>
               ))}
@@ -289,50 +289,50 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
       {/* Discovery mode: hint */}
       {mode === "discovery" && (
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Hint for Claude <span className="text-gray-400">(optional)</span>
+          <label className="mb-1 block text-sm font-medium text-gray-300">
+            Hint for Claude <span className="text-gray-500">(optional)</span>
           </label>
           <input
             type="text"
             value={hint}
             onChange={(e) => setHint(e.target.value)}
             placeholder="e.g. focus on the backend services, or repos with Terraform"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
           />
         </div>
       )}
 
       {/* Task prompt */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">Task Description</label>
+        <label className="mb-1 block text-sm font-medium text-gray-300">Task Description</label>
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Describe the task for Claude..."
           required
           rows={4}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
         />
       </div>
 
       {/* Task-specific rules */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Task Rules <span className="text-gray-400">(optional — added to your global rules)</span>
+        <label className="mb-1 block text-sm font-medium text-gray-300">
+          Task Rules <span className="text-gray-500">(optional — added to your global rules)</span>
         </label>
         <textarea
           value={taskRules}
           onChange={(e) => setTaskRules(e.target.value)}
           placeholder="e.g. Use Go for new services, target Go 1.24"
           rows={3}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-orange-500 focus:outline-none"
+          className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 font-mono text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
         />
       </div>
 
       {/* Permission mode + Model */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Permission Mode</label>
+          <label className="mb-2 block text-sm font-medium text-gray-300">Permission Mode</label>
           <div className="space-y-1">
             {([
               ["plan", "Plan Only", "Read-only, safest"],
@@ -346,19 +346,19 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
                 className={`w-full rounded-lg border px-3 py-1.5 text-left text-sm transition-colors ${
                   permissionMode === value
                     ? value === "bypassPermissions"
-                      ? "border-red-400 bg-red-50 text-red-700"
-                      : "border-orange-500 bg-orange-50 text-orange-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      ? "border-red-700 bg-red-900/30 text-red-400"
+                      : "border-claude bg-claude/10 text-claude-light"
+                    : "border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600"
                 }`}
               >
                 <span className="font-medium">{label}</span>
-                <span className="ml-1 text-xs text-gray-400">{desc}</span>
+                <span className="ml-1 text-xs text-gray-500">{desc}</span>
               </button>
             ))}
           </div>
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Model</label>
+          <label className="mb-2 block text-sm font-medium text-gray-300">Model</label>
           <div className="space-y-1">
             {([
               ["sonnet", "Sonnet", "Fast, default"],
@@ -370,12 +370,12 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
                 onClick={() => setModel(value)}
                 className={`w-full rounded-lg border px-3 py-1.5 text-left text-sm transition-colors ${
                   model === value
-                    ? "border-orange-500 bg-orange-50 text-orange-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    ? "border-claude bg-claude/10 text-claude-light"
+                    : "border-gray-700 bg-gray-800 text-gray-400 hover:border-gray-600"
                 }`}
               >
                 <span className="font-medium">{label}</span>
-                <span className="ml-1 text-xs text-gray-400">{desc}</span>
+                <span className="ml-1 text-xs text-gray-500">{desc}</span>
               </button>
             ))}
           </div>
@@ -384,8 +384,8 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
 
       {/* Max turns */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Max Turns <span className="text-gray-400">(optional)</span>
+        <label className="mb-1 block text-sm font-medium text-gray-300">
+          Max Turns <span className="text-gray-500">(optional)</span>
         </label>
         <input
           type="number"
@@ -393,14 +393,14 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
           onChange={(e) => setMaxTurns(Number(e.target.value))}
           min={1}
           max={500}
-          className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+          className="w-24 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 focus:border-claude focus:outline-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={submitting || !isValid()}
-        className="w-full rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-orange-700 disabled:bg-gray-400"
+        className="w-full rounded-lg bg-claude px-4 py-2.5 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
       >
         {submitting ? "Submitting..." : "Submit Task"}
       </button>

@@ -25,23 +25,23 @@ const TaskNew = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
+    <div className="min-h-screen bg-gray-950">
+      <header className="border-b border-gray-800 bg-gray-900">
         <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-3">
-          <Link to="/" className="text-gray-400 hover:text-gray-600">
+          <Link to="/" className="text-gray-500 hover:text-gray-300">
             &larr; Back
           </Link>
-          <h1 className="text-lg font-semibold text-gray-900">New Task</h1>
+          <h1 className="text-lg font-semibold text-gray-100">New Task</h1>
         </div>
       </header>
 
       <main className="mx-auto max-w-lg px-4 py-6">
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+          <div className="mb-4 rounded-lg bg-red-900/30 border border-red-800 px-4 py-3 text-sm text-red-400">
             {error}
           </div>
         )}
-        <div className="rounded-lg bg-white p-6 shadow-sm">
+        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
           <TaskForm onSubmit={handleSubmit} submitting={submitting} />
         </div>
       </main>

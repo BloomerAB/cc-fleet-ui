@@ -1,11 +1,11 @@
 {
-  "name": "Claude Platform",
-  "short_name": "Claude",
+  "name": "Claude Code Fleet",
+  "short_name": "CC Fleet",
   "description": "Remote Claude Code Session Manager",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "theme_color": "#C15F3C",
   "orientation": "any",
   "icons": [
     {

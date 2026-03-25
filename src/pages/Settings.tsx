@@ -73,35 +73,35 @@ const Settings = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-950">
         <p className="text-gray-500">Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
+    <div className="min-h-screen bg-gray-950">
+      <header className="border-b border-gray-800 bg-gray-900">
         <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-3">
-          <Link to="/" className="text-gray-400 hover:text-gray-600">
+          <Link to="/" className="text-gray-500 hover:text-gray-300">
             &larr; Back
           </Link>
-          <h1 className="text-lg font-semibold text-gray-900">Settings</h1>
+          <h1 className="text-lg font-semibold text-gray-100">Settings</h1>
         </div>
       </header>
 
       <main className="mx-auto max-w-lg space-y-6 px-4 py-6">
         {message && (
           <div className={`rounded-lg px-4 py-3 text-sm ${
-            message.type === "success" ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600"
+            message.type === "success" ? "bg-green-900/30 border border-green-800 text-green-400" : "bg-red-900/30 border border-red-800 text-red-400"
           }`}>
             {message.text}
           </div>
         )}
 
         {/* Auth mode info */}
-        <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-          <p className="text-sm text-gray-700">
+        <div className="rounded-lg border border-gray-800 bg-gray-900 px-4 py-3">
+          <p className="text-sm text-gray-300">
             Auth mode: <span className="font-medium">{authMode === "subscription" ? "Pro/Max Subscription" : "API Key"}</span>
           </p>
           {authMode === "subscription" && (
@@ -111,16 +111,16 @@ const Settings = () => {
 
         {/* API Key — only shown in apiKey mode */}
         {authMode === "apiKey" && (
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-gray-900">Anthropic API Key</h2>
+        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
+          <h2 className="mb-4 text-sm font-semibold text-gray-100">Anthropic API Key</h2>
 
           {hasKey && (
-            <div className="mb-4 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3">
-              <span className="text-sm text-green-700">API key is configured</span>
+            <div className="mb-4 flex items-center justify-between rounded-lg border border-green-800 bg-green-900/30 px-4 py-3">
+              <span className="text-sm text-green-400">API key is configured</span>
               <button
                 onClick={handleRemoveKey}
                 disabled={saving}
-                className="text-xs text-red-500 hover:text-red-700"
+                className="text-xs text-red-400 hover:text-red-300"
               >
                 Remove
               </button>
@@ -137,13 +137,13 @@ const Settings = () => {
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-ant-..."
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
               />
             </div>
             <button
               type="submit"
               disabled={saving || !apiKey.trim()}
-              className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:bg-gray-400"
+              className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
             >
               {saving ? "Saving..." : "Save Key"}
             </button>
@@ -152,8 +152,8 @@ const Settings = () => {
         )}
 
         {/* Rules (CLAUDE.md equivalent) */}
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          <h2 className="mb-1 text-sm font-semibold text-gray-900">Rules</h2>
+        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
+          <h2 className="mb-1 text-sm font-semibold text-gray-100">Rules</h2>
           <p className="mb-4 text-xs text-gray-500">
             Your personal CLAUDE.md — applied to all your tasks. Platform defaults are always included.
           </p>
@@ -164,12 +164,12 @@ const Settings = () => {
               onChange={(e) => setRules(e.target.value)}
               placeholder={"# My Rules\n\n- Use TypeScript, not JavaScript\n- Always add tests\n- Prefer functional patterns"}
               rows={12}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-orange-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 font-mono text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
             />
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:bg-gray-400"
+              className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
             >
               {saving ? "Saving..." : "Save Rules"}
             </button>
@@ -177,8 +177,8 @@ const Settings = () => {
         </div>
 
         {/* Claude Settings (settings.json) */}
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          <h2 className="mb-1 text-sm font-semibold text-gray-900">Claude Settings</h2>
+        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
+          <h2 className="mb-1 text-sm font-semibold text-gray-100">Claude Settings</h2>
           <p className="mb-4 text-xs text-gray-500">
             Override .claude/settings.json for your sessions. Default tool permissions are always included.
             Use JSON format.
@@ -208,12 +208,12 @@ const Settings = () => {
               onChange={(e) => setClaudeSettings(e.target.value)}
               placeholder={'{\n  "permissions": {\n    "allow": ["mcp__my-server__*"]\n  }\n}'}
               rows={8}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:border-orange-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 font-mono text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
             />
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:bg-gray-400"
+              className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
             >
               {saving ? "Saving..." : "Save Settings"}
             </button>

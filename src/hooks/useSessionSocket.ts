@@ -51,9 +51,9 @@ const useSessionSocket = (sessionId: string | null) => {
           }))
           break
         case "result":
+          // Don't hardcode completed — trust session_update messages for status
           setState((prev) => ({
             ...prev,
-            status: "completed",
             questions: null,
           }))
           break
@@ -85,10 +85,27 @@ const useSessionSocket = (sessionId: string | null) => {
     }
   }, [sessionId])
 
+  const sendFollowUp = useCallback(
+    (text: string) => {
+      if (sessionId && clientRef.current) {
+        clientRef.current.sendFollowUp(sessionId, text)
+      }
+    },
+    [sessionId],
+  )
+
+  const endSession = useCallback(() => {
+    if (sessionId && clientRef.current) {
+      clientRef.current.endSession(sessionId)
+    }
+  }, [sessionId])
+
   return {
     ...state,
     sendAnswer,
     cancel,
+    sendFollowUp,
+    endSession,
   }
 }
 

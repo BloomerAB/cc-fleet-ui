@@ -45,7 +45,7 @@ self.addEventListener("fetch", (event) => {
 })
 
 self.addEventListener("push", (event) => {
-  const data = event.data?.json() ?? { title: "Claude Platform", body: "Notification" }
+  const data = event.data?.json() ?? { title: "Claude Code Fleet", body: "Notification" }
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,

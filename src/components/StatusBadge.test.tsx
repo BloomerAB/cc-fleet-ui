@@ -46,7 +46,7 @@ describe("StatusBadge", () => {
   it("applies the correct CSS classes for each status", () => {
     const { container } = render(<StatusBadge status="failed" />)
     const badge = container.querySelector("span")
-    expect(badge?.className).toContain("bg-red-100")
-    expect(badge?.className).toContain("text-red-800")
+    expect(badge?.className).toContain("bg-red-900/30")
+    expect(badge?.className).toContain("text-red-400")
   })
 })

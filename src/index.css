@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@theme {
+  --color-claude: #C15F3C;
+  --color-claude-light: #D4745A;
+  --color-claude-dark: #A04E30;
+}

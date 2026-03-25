@@ -85,6 +85,14 @@ const createWsClient = () => {
     send({ type: "cancel", sessionId })
   }
 
+  const sendFollowUp = (sessionId: string, text: string) => {
+    send({ type: "follow_up", sessionId, text })
+  }
+
+  const endSession = (sessionId: string) => {
+    send({ type: "end_session", sessionId })
+  }
+
   return {
     connect,
     disconnect,
@@ -92,6 +100,8 @@ const createWsClient = () => {
     subscribeSessions,
     sendAnswer,
     cancelSession,
+    sendFollowUp,
+    endSession,
   }
 }
 

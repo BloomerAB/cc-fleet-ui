@@ -51,11 +51,11 @@ const SessionCard = ({ session, onDeleted }: SessionCardProps) => {
   return (
     <Link
       to={`/tasks/${session.id}`}
-      className="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+      className="block rounded-lg border border-gray-800 bg-gray-900 p-4 transition-colors hover:border-gray-700"
     >
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-gray-900">
+          <p className="truncate text-sm font-medium text-gray-100">
             {session.prompt.slice(0, 100)}
             {session.prompt.length > 100 ? "..." : ""}
           </p>
@@ -68,7 +68,7 @@ const SessionCard = ({ session, onDeleted }: SessionCardProps) => {
           {canDelete && (
             <button
               onClick={handleDelete}
-              className="rounded px-1.5 py-0.5 text-xs text-gray-400 hover:bg-red-50 hover:text-red-500"
+              className="rounded px-1.5 py-0.5 text-xs text-gray-500 hover:bg-red-900/30 hover:text-red-400"
               title="Delete session"
             >
               x
@@ -76,7 +76,7 @@ const SessionCard = ({ session, onDeleted }: SessionCardProps) => {
           )}
         </div>
       </div>
-      <div className="mt-3 flex items-center gap-4 text-xs text-gray-400">
+      <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
         <span>{timeAgo(session.createdAt)}</span>
         {session.result?.costUsd !== undefined && (
           <span>${session.result.costUsd.toFixed(2)}</span>

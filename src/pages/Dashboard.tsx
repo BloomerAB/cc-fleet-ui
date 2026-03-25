@@ -8,20 +8,20 @@ const Dashboard = () => {
   const { user, logout } = useAuth()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
+    <div className="min-h-screen bg-gray-950">
+      <header className="border-b border-gray-800 bg-gray-900">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-semibold text-gray-900">Claude Platform</h1>
+          <h1 className="text-lg font-semibold text-gray-100">Claude Code Fleet</h1>
           <div className="flex items-center gap-4">
             {user && (
-              <span className="text-sm text-gray-500">{user.login}</span>
+              <span className="text-sm text-gray-400">{user.login}</span>
             )}
-            <Link to="/settings" className="text-sm text-gray-500 hover:text-gray-700">
+            <Link to="/settings" className="text-sm text-gray-400 hover:text-gray-200">
               Settings
             </Link>
             <button
               onClick={logout}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-gray-400 hover:text-gray-200"
             >
               Sign out
             </button>
@@ -31,28 +31,28 @@ const Dashboard = () => {
 
       <main className="mx-auto max-w-4xl px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Sessions</h2>
+          <h2 className="text-xl font-semibold text-gray-100">Sessions</h2>
           <Link
             to="/tasks/new"
-            className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
+            className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark"
           >
             New Task
           </Link>
         </div>
 
         {loading && <p className="text-gray-500">Loading sessions...</p>}
-        {error && <p className="text-red-600">{error}</p>}
+        {error && <p className="text-red-400">{error}</p>}
 
         <div className="space-y-3">
           {sessions.map((session) => (
             <SessionCard key={session.id} session={session} onDeleted={refetch} />
           ))}
           {!loading && sessions.length === 0 && (
-            <div className="rounded-lg border-2 border-dashed border-gray-300 py-12 text-center">
+            <div className="rounded-lg border-2 border-dashed border-gray-700 py-12 text-center">
               <p className="text-gray-500">No sessions yet</p>
               <Link
                 to="/tasks/new"
-                className="mt-2 inline-block text-sm text-orange-600 hover:underline"
+                className="mt-2 inline-block text-sm text-claude hover:underline"
               >
                 Create your first task
               </Link>

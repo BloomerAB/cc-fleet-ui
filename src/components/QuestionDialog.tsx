@@ -19,15 +19,15 @@ const QuestionDialog = ({ questions, onAnswer }: QuestionDialogProps) => {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="mx-4 w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="mx-4 w-full max-w-lg rounded-lg border border-gray-800 bg-gray-900 p-6 shadow-xl">
+        <h3 className="mb-4 text-lg font-semibold text-gray-100">
           Claude needs your input
         </h3>
         <form onSubmit={handleSubmit}>
           {questions.map((q) => (
             <div key={q.id} className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-300">
                 {q.question}
               </label>
               {q.options && q.options.length > 0 ? (
@@ -35,7 +35,7 @@ const QuestionDialog = ({ questions, onAnswer }: QuestionDialogProps) => {
                   {q.options.map((opt) => (
                     <label
                       key={opt.value}
-                      className="flex items-center gap-2 rounded-lg border p-3 hover:bg-gray-50"
+                      className="flex items-center gap-2 rounded-lg border border-gray-700 p-3 hover:border-gray-600"
                     >
                       <input
                         type="radio"
@@ -43,9 +43,9 @@ const QuestionDialog = ({ questions, onAnswer }: QuestionDialogProps) => {
                         value={opt.value}
                         checked={answers[q.id] === opt.value}
                         onChange={() => updateAnswer(q.id, opt.value)}
-                        className="h-4 w-4 text-orange-600"
+                        className="h-4 w-4 accent-claude"
                       />
-                      <span className="text-sm text-gray-900">{opt.label}</span>
+                      <span className="text-sm text-gray-200">{opt.label}</span>
                     </label>
                   ))}
                 </div>
@@ -54,7 +54,7 @@ const QuestionDialog = ({ questions, onAnswer }: QuestionDialogProps) => {
                   type="text"
                   value={answers[q.id] ?? q.defaultAnswer ?? ""}
                   onChange={(e) => updateAnswer(q.id, e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
                   placeholder="Type your answer..."
                 />
               )}
@@ -62,7 +62,7 @@ const QuestionDialog = ({ questions, onAnswer }: QuestionDialogProps) => {
           ))}
           <button
             type="submit"
-            className="w-full rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
+            className="w-full rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark"
           >
             Submit Answer
           </button>
