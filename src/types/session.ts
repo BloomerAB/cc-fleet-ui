@@ -33,6 +33,9 @@ export type RepoSource = DirectRepoSource | OrgRepoSource | DiscoveryRepoSource
 
 export type RepoSourceMode = RepoSource["mode"]
 
+export type PermissionMode = "plan" | "acceptEdits" | "bypassPermissions"
+export type ModelChoice = "sonnet" | "opus"
+
 export interface TaskConfig {
   readonly prompt: string
   readonly repoSource: RepoSource
@@ -49,6 +52,9 @@ export interface Session {
   readonly repoSource: RepoSource
   readonly repos: readonly RepoConfig[]
   readonly rules: string | null
+  readonly permissionMode: PermissionMode
+  readonly model: ModelChoice
+  readonly cliSessionId: string | null
   readonly maxTurns: number
   readonly maxBudgetUsd: number
   readonly deadlineSeconds: number

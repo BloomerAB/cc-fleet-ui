@@ -6,6 +6,8 @@ export type {
   DiscoveryRepoSource,
   RepoSource,
   RepoSourceMode,
+  PermissionMode,
+  ModelChoice,
   TaskConfig,
   Session,
   SessionResult,

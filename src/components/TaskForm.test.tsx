@@ -153,6 +153,8 @@ describe("TaskForm", () => {
           mode: "direct",
           repos: [{ url: "https://github.com/org/my-repo", branch: "main" }],
         },
+        permissionMode: "acceptEdits",
+        model: "sonnet",
         maxTurns: 200,
       })
     })
@@ -180,6 +182,8 @@ describe("TaskForm", () => {
           mode: "direct",
           repos: [{ url: "https://github.com/org/repo" }],
         },
+        permissionMode: "acceptEdits",
+        model: "sonnet",
         maxTurns: 200,
       })
     })
@@ -208,6 +212,8 @@ describe("TaskForm", () => {
           mode: "discovery",
           org: "testuser",
         },
+        permissionMode: "acceptEdits",
+        model: "sonnet",
         maxTurns: 200,
       })
     })
@@ -235,6 +241,8 @@ describe("TaskForm", () => {
           org: "testuser",
           hint: "only TypeScript repos",
         },
+        permissionMode: "acceptEdits",
+        model: "sonnet",
         maxTurns: 200,
       })
     })
