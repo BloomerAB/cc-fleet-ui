@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import type {
   ManagerToDashboardMessage,
   DashboardOutputMessage,
+  RunnerResult,
   Question,
   SessionStatus,
 } from "../types/index.js"
@@ -11,6 +12,7 @@ interface SessionSocketState {
   readonly outputs: readonly DashboardOutputMessage[]
   readonly questions: readonly Question[] | null
   readonly status: SessionStatus | null
+  readonly result: RunnerResult | null
 }
 
 const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly DashboardOutputMessage[]) => {
@@ -19,6 +21,7 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
     outputs: [],
     questions: null,
     status: null,
+    result: null,
   })
 
   useEffect(() => {
@@ -51,10 +54,10 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
           }))
           break
         case "result":
-          // Don't hardcode completed — trust session_update messages for status
           setState((prev) => ({
             ...prev,
             questions: null,
+            result: message.result,
           }))
           break
       }

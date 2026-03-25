@@ -13,7 +13,7 @@ const TaskDetail = () => {
   const [loading, setLoading] = useState(true)
   const [followUpText, setFollowUpText] = useState("")
   const [initialOutputs, setInitialOutputs] = useState<DashboardOutputMessage[]>([])
-  const { outputs, questions, status, sendAnswer, cancel, sendFollowUp, endSession } = useSessionSocket(id ?? null, initialOutputs)
+  const { outputs, questions, status, result: liveResult, sendAnswer, cancel, sendFollowUp, endSession } = useSessionSocket(id ?? null, initialOutputs)
 
   useEffect(() => {
     if (!id) return
@@ -82,13 +82,25 @@ const TaskDetail = () => {
         <div className="mb-3 flex items-start justify-between">
           <div>
             <p className="text-sm text-gray-200">{session.prompt}</p>
-            <p className="mt-1 text-xs text-gray-500">
-              {session.repoSource.mode === "direct"
-                ? session.repoSource.repos.map((r) => r.url.replace(/^https?:\/\//, "").replace(/\.git$/, "")).join(", ")
-                : session.repoSource.mode === "org"
-                  ? `${session.repoSource.org}${session.repoSource.pattern ? `/${session.repoSource.pattern}` : ""}`
-                  : `${session.repoSource.org} (discovery)`}
-            </p>
+            <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+              <span>
+                {session.repoSource.mode === "direct"
+                  ? session.repoSource.repos.map((r) => r.url.replace(/^https?:\/\//, "").replace(/\.git$/, "")).join(", ")
+                  : session.repoSource.mode === "org"
+                    ? `${session.repoSource.org}${session.repoSource.pattern ? `/${session.repoSource.pattern}` : ""}`
+                    : `${session.repoSource.org} (discovery)`}
+              </span>
+              {(liveResult ?? session.result) && (
+                <>
+                  {(liveResult ?? session.result)!.costUsd !== undefined && (
+                    <span className="text-claude">${(liveResult ?? session.result)!.costUsd!.toFixed(4)}</span>
+                  )}
+                  {(liveResult ?? session.result)!.turnsUsed !== undefined && (
+                    <span>{(liveResult ?? session.result)!.turnsUsed} turns</span>
+                  )}
+                </>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <StatusBadge status={currentStatus} />
@@ -111,27 +123,16 @@ const TaskDetail = () => {
           </div>
         </div>
 
-        {session.result && currentStatus === "completed" && (
-          <div className="mb-3 rounded-lg border border-gray-800 bg-gray-900 p-4">
-            <p className="text-sm text-gray-200">{session.result.summary}</p>
-            <div className="mt-2 flex gap-4 text-xs text-gray-500">
-              {session.result.costUsd !== undefined && (
-                <span>Cost: ${session.result.costUsd.toFixed(2)}</span>
-              )}
-              {session.result.turnsUsed !== undefined && (
-                <span>Turns: {session.result.turnsUsed}</span>
-              )}
-              {session.result.prUrl && (
-                <a
-                  href={session.result.prUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-claude hover:underline"
-                >
-                  View PR
-                </a>
-              )}
-            </div>
+        {session.result?.prUrl && (
+          <div className="mb-3">
+            <a
+              href={session.result.prUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-claude hover:underline"
+            >
+              View PR
+            </a>
           </div>
         )}
 
