@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import type {
   ManagerToDashboardMessage,
   DashboardOutputMessage,
@@ -15,8 +15,6 @@ interface SessionSocketState {
 
 const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly DashboardOutputMessage[]) => {
   const clientRef = useRef<WsClient | null>(null)
-  const initialOutputsRef = useRef(initialOutputs)
-  initialOutputsRef.current = initialOutputs
   const [state, setState] = useState<SessionSocketState>({
     outputs: [],
     questions: null,
@@ -102,15 +100,16 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
     }
   }, [sessionId])
 
-  const allOutputs = initialOutputsRef.current && initialOutputsRef.current.length > 0 && state.outputs.length === 0
-    ? initialOutputsRef.current
-    : state.outputs.length > 0
-      ? [...(initialOutputsRef.current ?? []), ...state.outputs]
-      : initialOutputsRef.current ?? []
+  const mergedOutputs = useMemo(() => {
+    if (state.outputs.length > 0) {
+      return [...(initialOutputs ?? []), ...state.outputs]
+    }
+    return initialOutputs ?? []
+  }, [initialOutputs, state.outputs])
 
   return {
     ...state,
-    outputs: allOutputs,
+    outputs: mergedOutputs,
     sendAnswer,
     cancel,
     sendFollowUp,
