@@ -62,6 +62,20 @@ const TaskDetail = () => {
     }
   }, [session, retrying, navigate])
 
+  const [resuming, setResuming] = useState(false)
+  const handleResume = useCallback(async () => {
+    if (!session || !id || resuming) return
+    setResuming(true)
+    try {
+      const response = await api.resumeTask(id)
+      if (response.success && response.data) {
+        navigate(`/tasks/${response.data.id}`)
+      }
+    } catch {
+      setResuming(false)
+    }
+  }, [session, id, resuming, navigate])
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-950">
@@ -143,13 +157,24 @@ const TaskDetail = () => {
               </button>
             )}
             {(currentStatus === "failed" || currentStatus === "cancelled" || currentStatus === "completed") && (
-              <button
-                onClick={handleRetry}
-                disabled={retrying}
-                className="rounded border border-claude px-3 py-1.5 text-xs text-claude hover:bg-claude/10 disabled:opacity-50"
-              >
-                {retrying ? "Retrying..." : "Retry"}
-              </button>
+              <>
+                {session.cliSessionId && (
+                  <button
+                    onClick={handleResume}
+                    disabled={resuming}
+                    className="rounded border border-claude bg-claude/10 px-3 py-1.5 text-xs text-claude hover:bg-claude/20 disabled:opacity-50"
+                  >
+                    {resuming ? "Resuming..." : "Resume"}
+                  </button>
+                )}
+                <button
+                  onClick={handleRetry}
+                  disabled={retrying}
+                  className="rounded border border-gray-700 px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800 disabled:opacity-50"
+                >
+                  {retrying ? "Retrying..." : "Retry"}
+                </button>
+              </>
             )}
           </div>
         </div>

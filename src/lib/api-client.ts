@@ -56,14 +56,17 @@ const api = {
     request(`/tasks/${id}`, { method: "DELETE" }),
 
   // Settings
-  getSettings: (): Promise<ApiResponse<{ hasAnthropicKey: boolean; rules: string; authMode?: "apiKey" | "subscription"; claudeSettings?: string }>> =>
+  getSettings: (): Promise<ApiResponse<{ hasAnthropicKey: boolean; rules: string; authMode?: "apiKey" | "subscription"; claudeSettings?: string; hasKubeconfig?: boolean }>> =>
     request("/settings"),
 
-  updateSettings: (data: { anthropicApiKey?: string; rules?: string; claudeSettings?: string }): Promise<ApiResponse<null>> =>
+  updateSettings: (data: { anthropicApiKey?: string; rules?: string; claudeSettings?: string; kubeconfig?: string }): Promise<ApiResponse<null>> =>
     request("/settings", { method: "PUT", body: JSON.stringify(data) }),
 
   removeAnthropicKey: (): Promise<ApiResponse<null>> =>
     request("/settings/anthropic-key", { method: "DELETE" }),
+
+  resumeTask: (id: string): Promise<ApiResponse<{ id: string }>> =>
+    request(`/tasks/${id}/resume`, { method: "POST" }),
 
   getMessages: (id: string): Promise<ApiResponse<readonly { id: string; role: string; content: string; toolName?: string; createdAt: string }[]>> =>
     request(`/tasks/${id}/messages`),

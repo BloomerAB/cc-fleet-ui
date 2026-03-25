@@ -8,6 +8,8 @@ const Settings = () => {
   const [apiKey, setApiKey] = useState("")
   const [rules, setRules] = useState("")
   const [claudeSettings, setClaudeSettings] = useState("")
+  const [hasKubeconfig, setHasKubeconfig] = useState(false)
+  const [kubeconfig, setKubeconfig] = useState("")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
@@ -20,6 +22,7 @@ const Settings = () => {
           setHasKey(res.data.hasAnthropicKey)
           setRules(res.data.rules ?? "")
           setClaudeSettings(res.data.claudeSettings ?? "")
+          setHasKubeconfig(res.data.hasKubeconfig ?? false)
         }
       })
       .finally(() => setLoading(false))
@@ -216,6 +219,71 @@ const Settings = () => {
               className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
             >
               {saving ? "Saving..." : "Save Settings"}
+            </button>
+          </form>
+        </div>
+
+        {/* Kubeconfig */}
+        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
+          <h2 className="mb-1 text-sm font-semibold text-gray-100">Kubeconfig</h2>
+          <p className="mb-4 text-xs text-gray-500">
+            Provide a kubeconfig for kubectl access in your sessions. Written to ~/.kube/config.
+          </p>
+
+          {hasKubeconfig && !kubeconfig && (
+            <div className="mb-4 flex items-center justify-between rounded-lg border border-green-800 bg-green-900/30 px-4 py-3">
+              <span className="text-sm text-green-400">Kubeconfig is configured</span>
+              <button
+                onClick={async () => {
+                  setSaving(true)
+                  setMessage(null)
+                  try {
+                    await api.updateSettings({ kubeconfig: "" })
+                    setHasKubeconfig(false)
+                    setMessage({ type: "success", text: "Kubeconfig removed." })
+                  } catch (err) {
+                    setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed to remove" })
+                  } finally {
+                    setSaving(false)
+                  }
+                }}
+                disabled={saving}
+                className="text-xs text-red-400 hover:text-red-300"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          <form onSubmit={async (e) => {
+            e.preventDefault()
+            if (!kubeconfig.trim()) return
+            setSaving(true)
+            setMessage(null)
+            try {
+              await api.updateSettings({ kubeconfig: kubeconfig.trim() })
+              setHasKubeconfig(true)
+              setKubeconfig("")
+              setMessage({ type: "success", text: "Kubeconfig saved." })
+            } catch (err) {
+              setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed to save" })
+            } finally {
+              setSaving(false)
+            }
+          }} className="space-y-3">
+            <textarea
+              value={kubeconfig}
+              onChange={(e) => setKubeconfig(e.target.value)}
+              placeholder={"apiVersion: v1\nkind: Config\nclusters:\n- cluster:\n    server: https://..."}
+              rows={8}
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 font-mono text-sm text-gray-100 placeholder-gray-500 focus:border-claude focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={saving || !kubeconfig.trim()}
+              className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
+            >
+              {saving ? "Saving..." : "Save Kubeconfig"}
             </button>
           </form>
         </div>
