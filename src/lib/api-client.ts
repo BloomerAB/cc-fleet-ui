@@ -56,10 +56,10 @@ const api = {
     request(`/tasks/${id}`, { method: "DELETE" }),
 
   // Settings
-  getSettings: (): Promise<ApiResponse<{ hasAnthropicKey: boolean; rules: string }>> =>
+  getSettings: (): Promise<ApiResponse<{ hasAnthropicKey: boolean; rules: string; authMode?: "apiKey" | "subscription"; claudeSettings?: string }>> =>
     request("/settings"),
 
-  updateSettings: (data: { anthropicApiKey?: string; rules?: string }): Promise<ApiResponse<null>> =>
+  updateSettings: (data: { anthropicApiKey?: string; rules?: string; claudeSettings?: string }): Promise<ApiResponse<null>> =>
     request("/settings", { method: "PUT", body: JSON.stringify(data) }),
 
   removeAnthropicKey: (): Promise<ApiResponse<null>> =>
