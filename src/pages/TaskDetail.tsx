@@ -142,7 +142,7 @@ const TaskDetail = () => {
                 Cancel
               </button>
             )}
-            {(currentStatus === "failed" || currentStatus === "cancelled") && (
+            {(currentStatus === "failed" || currentStatus === "cancelled" || currentStatus === "completed") && (
               <button
                 onClick={handleRetry}
                 disabled={retrying}
