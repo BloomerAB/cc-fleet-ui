@@ -15,21 +15,13 @@ interface SessionSocketState {
 
 const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly DashboardOutputMessage[]) => {
   const clientRef = useRef<WsClient | null>(null)
+  const initialOutputsRef = useRef(initialOutputs)
+  initialOutputsRef.current = initialOutputs
   const [state, setState] = useState<SessionSocketState>({
-    outputs: initialOutputs ?? [],
+    outputs: [],
     questions: null,
     status: null,
   })
-
-  // Update outputs when initial outputs are loaded
-  useEffect(() => {
-    if (initialOutputs && initialOutputs.length > 0) {
-      setState((prev) => ({
-        ...prev,
-        outputs: prev.outputs.length === 0 ? initialOutputs : prev.outputs,
-      }))
-    }
-  }, [initialOutputs])
 
   useEffect(() => {
     if (!sessionId) return
@@ -110,8 +102,15 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
     }
   }, [sessionId])
 
+  const allOutputs = initialOutputsRef.current && initialOutputsRef.current.length > 0 && state.outputs.length === 0
+    ? initialOutputsRef.current
+    : state.outputs.length > 0
+      ? [...(initialOutputsRef.current ?? []), ...state.outputs]
+      : initialOutputsRef.current ?? []
+
   return {
     ...state,
+    outputs: allOutputs,
     sendAnswer,
     cancel,
     sendFollowUp,
