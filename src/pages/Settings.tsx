@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { api } from "../lib/api-client.js"
 
 const Settings = () => {
+  const [authMode, setAuthMode] = useState<"apiKey" | "subscription">("apiKey")
   const [hasKey, setHasKey] = useState(false)
   const [apiKey, setApiKey] = useState("")
   const [rules, setRules] = useState("")
@@ -15,6 +16,7 @@ const Settings = () => {
     api.getSettings()
       .then((res) => {
         if (res.success && res.data) {
+          setAuthMode(res.data.authMode ?? "apiKey")
           setHasKey(res.data.hasAnthropicKey)
           setRules(res.data.rules ?? "")
           setClaudeSettings(res.data.claudeSettings ?? "")
@@ -97,7 +99,18 @@ const Settings = () => {
           </div>
         )}
 
-        {/* API Key */}
+        {/* Auth mode info */}
+        <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+          <p className="text-sm text-gray-700">
+            Auth mode: <span className="font-medium">{authMode === "subscription" ? "Pro/Max Subscription" : "API Key"}</span>
+          </p>
+          {authMode === "subscription" && (
+            <p className="mt-1 text-xs text-gray-500">Using Claude Pro/Max subscription. API keys are not needed.</p>
+          )}
+        </div>
+
+        {/* API Key — only shown in apiKey mode */}
+        {authMode === "apiKey" && (
         <div className="rounded-lg bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-gray-900">Anthropic API Key</h2>
 
@@ -136,6 +149,7 @@ const Settings = () => {
             </button>
           </form>
         </div>
+        )}
 
         {/* Rules (CLAUDE.md equivalent) */}
         <div className="rounded-lg bg-white p-6 shadow-sm">
