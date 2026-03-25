@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import type { Session } from "../types/index.js"
 import { StatusBadge } from "./StatusBadge.js"
@@ -37,14 +38,19 @@ interface SessionCardProps {
 const SessionCard = ({ session, onDeleted }: SessionCardProps) => {
   const canDelete = session.status !== "running"
 
+  const [deleting, setDeleting] = useState(false)
+
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (deleting) return
+    setDeleting(true)
     try {
       await api.deleteTask(session.id)
       onDeleted?.()
-    } catch {
-      // Silently fail — user can retry
+    } catch (err) {
+      console.error("Delete failed:", err)
+      setDeleting(false)
     }
   }
 
@@ -68,10 +74,11 @@ const SessionCard = ({ session, onDeleted }: SessionCardProps) => {
           {canDelete && (
             <button
               onClick={handleDelete}
-              className="rounded px-1.5 py-0.5 text-xs text-gray-500 hover:bg-red-900/30 hover:text-red-400"
+              disabled={deleting}
+              className="rounded px-1.5 py-0.5 text-xs text-gray-500 hover:bg-red-900/30 hover:text-red-400 disabled:opacity-50"
               title="Delete session"
             >
-              x
+              {deleting ? "..." : "x"}
             </button>
           )}
         </div>
