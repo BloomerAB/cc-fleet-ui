@@ -13,13 +13,23 @@ interface SessionSocketState {
   readonly status: SessionStatus | null
 }
 
-const useSessionSocket = (sessionId: string | null) => {
+const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly DashboardOutputMessage[]) => {
   const clientRef = useRef<WsClient | null>(null)
   const [state, setState] = useState<SessionSocketState>({
-    outputs: [],
+    outputs: initialOutputs ?? [],
     questions: null,
     status: null,
   })
+
+  // Update outputs when initial outputs are loaded
+  useEffect(() => {
+    if (initialOutputs && initialOutputs.length > 0) {
+      setState((prev) => ({
+        ...prev,
+        outputs: prev.outputs.length === 0 ? initialOutputs : prev.outputs,
+      }))
+    }
+  }, [initialOutputs])
 
   useEffect(() => {
     if (!sessionId) return

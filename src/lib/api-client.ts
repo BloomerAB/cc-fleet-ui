@@ -65,6 +65,9 @@ const api = {
   removeAnthropicKey: (): Promise<ApiResponse<null>> =>
     request("/settings/anthropic-key", { method: "DELETE" }),
 
+  getMessages: (id: string): Promise<ApiResponse<readonly { id: string; role: string; content: string; toolName?: string; createdAt: string }[]>> =>
+    request(`/tasks/${id}/messages`),
+
   // GitHub endpoints
   listOrgs: (): Promise<ApiResponse<readonly GitHubOrg[]>> =>
     request("/github/orgs"),

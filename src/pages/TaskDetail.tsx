@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import type { Session } from "../types/index.js"
+import type { Session, DashboardOutputMessage } from "../types/index.js"
 import { api } from "../lib/api-client.js"
 import { useSessionSocket } from "../hooks/useSessionSocket.js"
 import { StatusBadge } from "../components/StatusBadge.js"
@@ -12,15 +12,29 @@ const TaskDetail = () => {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [followUpText, setFollowUpText] = useState("")
-  const { outputs, questions, status, sendAnswer, cancel, sendFollowUp, endSession } = useSessionSocket(id ?? null)
+  const [initialOutputs, setInitialOutputs] = useState<DashboardOutputMessage[]>([])
+  const { outputs, questions, status, sendAnswer, cancel, sendFollowUp, endSession } = useSessionSocket(id ?? null, initialOutputs)
 
   useEffect(() => {
     if (!id) return
-    api
-      .getTask(id)
-      .then((response) => {
-        if (response.success && response.data) {
-          setSession(response.data)
+    Promise.all([
+      api.getTask(id),
+      api.getMessages(id),
+    ])
+      .then(([taskRes, msgRes]) => {
+        if (taskRes.success && taskRes.data) {
+          setSession(taskRes.data)
+        }
+        if (msgRes.success && msgRes.data) {
+          setInitialOutputs(
+            msgRes.data.map((m) => ({
+              type: "output" as const,
+              sessionId: id,
+              text: m.role === "user" ? `**You:** ${m.content}` : m.content,
+              toolName: m.toolName,
+              timestamp: m.createdAt,
+            })),
+          )
         }
       })
       .finally(() => setLoading(false))
