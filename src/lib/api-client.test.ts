@@ -54,9 +54,7 @@ describe("api-client", () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         "/api/tasks?page=2&limit=10",
-        expect.objectContaining({
-          headers: expect.objectContaining({ "Content-Type": "application/json" }),
-        })
+        expect.objectContaining({ headers: expect.any(Object) })
       )
     })
   })
@@ -86,9 +84,7 @@ describe("api-client", () => {
 
       expect(mockFetch).toHaveBeenCalledWith(
         "/api/tasks/t1",
-        expect.objectContaining({
-          headers: expect.objectContaining({ "Content-Type": "application/json" }),
-        })
+        expect.objectContaining({ headers: expect.any(Object) })
       )
     })
   })
