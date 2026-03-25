@@ -5,11 +5,19 @@ interface SessionOutputProps {
   readonly outputs: readonly DashboardOutputMessage[]
 }
 
+// Tools that are internal/meta and shouldn't show their full input
+const INTERNAL_TOOLS = new Set([
+  "EnterPlanMode", "ExitPlanMode", "AskUserQuestion",
+  "TaskCreate", "TaskUpdate", "TaskGet", "TaskList", "TaskOutput", "TaskStop",
+  "TodoWrite", "TodoRead",
+])
+
 const ToolBlock = ({ toolName, text }: { readonly toolName: string; readonly text: string }) => {
   const isRead = toolName === "Read"
   const isWrite = toolName === "Write" || toolName === "Edit"
   const isBash = toolName === "Bash"
   const isSearch = toolName === "Grep" || toolName === "Glob"
+  const isAgent = toolName === "Agent"
 
   const iconColor = isBash
     ? "text-yellow-400"
@@ -17,9 +25,11 @@ const ToolBlock = ({ toolName, text }: { readonly toolName: string; readonly tex
       ? "text-cyan-400"
       : isWrite
         ? "text-green-400"
-        : "text-purple-400"
+        : isAgent
+          ? "text-blue-400"
+          : "text-purple-400"
 
-  // Try to extract meaningful info from tool input JSON
+  // Extract meaningful summary from tool input JSON
   let summary = text
   try {
     const parsed = JSON.parse(text)
@@ -27,8 +37,22 @@ const ToolBlock = ({ toolName, text }: { readonly toolName: string; readonly tex
     else if (parsed.file_path) summary = parsed.file_path
     else if (parsed.pattern) summary = `${parsed.pattern}${parsed.path ? ` in ${parsed.path}` : ""}`
     else if (parsed.path) summary = parsed.path
+    else if (parsed.prompt) summary = parsed.prompt.slice(0, 200)
+    else if (parsed.description) summary = parsed.description
+    else if (parsed.content) summary = parsed.content.slice(0, 200)
+    else if (INTERNAL_TOOLS.has(toolName)) summary = ""
+    else if (summary.length > 300) summary = `${summary.slice(0, 300)}...`
   } catch {
-    // Not JSON, use as-is
+    if (summary.length > 300) summary = `${summary.slice(0, 300)}...`
+  }
+
+  // Hide internal tools with no useful summary
+  if (INTERNAL_TOOLS.has(toolName) && !summary) {
+    return (
+      <div className="my-1 flex items-center gap-2 px-1">
+        <span className="text-xs text-gray-600">{toolName}</span>
+      </div>
+    )
   }
 
   return (
@@ -36,9 +60,11 @@ const ToolBlock = ({ toolName, text }: { readonly toolName: string; readonly tex
       <div className="flex items-center gap-2 border-b border-gray-700 px-3 py-1.5">
         <span className={`text-xs font-bold ${iconColor}`}>{toolName}</span>
       </div>
-      <div className="px-3 py-2">
-        <pre className="whitespace-pre-wrap break-all text-xs text-gray-400">{summary}</pre>
-      </div>
+      {summary && (
+        <div className="px-3 py-2">
+          <pre className="whitespace-pre-wrap break-all text-xs text-gray-400">{summary}</pre>
+        </div>
+      )}
     </div>
   )
 }
@@ -49,9 +75,15 @@ const AssistantMessage = ({ text }: { readonly text: string }) => (
   </div>
 )
 
+const UserMessage = ({ text }: { readonly text: string }) => (
+  <div className="my-3 border-l-2 border-blue-500/50 pl-3">
+    <pre className="whitespace-pre-wrap break-words text-sm leading-relaxed text-blue-200">{text}</pre>
+  </div>
+)
+
 const SystemMessage = ({ text }: { readonly text: string }) => (
   <div className="my-2 text-center">
-    <span className="text-xs text-gray-500">{text}</span>
+    <span className="text-xs text-gray-600">{text}</span>
   </div>
 )
 
@@ -80,6 +112,9 @@ const SessionOutput = ({ outputs }: SessionOutputProps) => {
       {outputs.map((output, i) => {
         if (output.text.startsWith("[System:")) {
           return <SystemMessage key={i} text={output.text} />
+        }
+        if (output.text.startsWith("**You:**")) {
+          return <UserMessage key={i} text={output.text.replace(/^\*\*You:\*\*\s*/, "")} />
         }
         if (output.toolName) {
           return <ToolBlock key={i} toolName={output.toolName} text={output.text} />
