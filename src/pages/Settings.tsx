@@ -102,37 +102,86 @@ const Settings = () => {
           </div>
         )}
 
-        {/* API Token for CLI/MCP */}
+        {/* MCP Setup */}
         <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-          <h2 className="mb-1 text-sm font-semibold text-gray-100">API Token</h2>
+          <h2 className="mb-1 text-sm font-semibold text-gray-100">Local CLI Integration</h2>
           <p className="mb-4 text-xs text-gray-500">
-            Generate a long-lived token for the cc-fleet MCP server or CLI scripts.
+            Sync sessions between your local Claude Code and Fleet. Push sessions to Fleet or pull them locally.
           </p>
-          <button
-            onClick={async () => {
-              setSaving(true)
-              setMessage(null)
-              try {
-                const response = await fetch("/api/settings/api-token", {
-                  method: "POST",
-                  headers: { Authorization: `Bearer ${localStorage.getItem("claude_dashboard_token")}` },
-                })
-                const data = await response.json() as { success: boolean; data?: { token: string } }
-                if (data.success && data.data) {
-                  await navigator.clipboard.writeText(data.data.token)
-                  setMessage({ type: "success", text: "API token copied to clipboard (valid 1 year)" })
-                }
-              } catch (err) {
-                setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed" })
-              } finally {
-                setSaving(false)
-              }
-            }}
-            disabled={saving}
-            className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
-          >
-            Generate & Copy Token
-          </button>
+
+          <div className="space-y-4">
+            {/* Step 1: Generate token */}
+            <div>
+              <p className="mb-2 text-xs font-medium text-gray-300">1. Generate an API token</p>
+              <button
+                onClick={async () => {
+                  setSaving(true)
+                  setMessage(null)
+                  try {
+                    const response = await fetch("/api/settings/api-token", {
+                      method: "POST",
+                      headers: { Authorization: `Bearer ${localStorage.getItem("claude_dashboard_token")}` },
+                    })
+                    const data = await response.json() as { success: boolean; data?: { token: string } }
+                    if (data.success && data.data) {
+                      await navigator.clipboard.writeText(data.data.token)
+                      setMessage({ type: "success", text: "API token copied to clipboard (valid 1 year)" })
+                    }
+                  } catch (err) {
+                    setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed" })
+                  } finally {
+                    setSaving(false)
+                  }
+                }}
+                disabled={saving}
+                className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
+              >
+                Generate & Copy Token
+              </button>
+            </div>
+
+            {/* Step 2: Install */}
+            <div>
+              <p className="mb-2 text-xs font-medium text-gray-300">2. Install the MCP server</p>
+              <pre className="rounded-lg border border-gray-700 bg-gray-800 p-3 text-xs text-gray-300 overflow-x-auto">
+{`npx @bloomerab/cc-fleet-mcp`}
+              </pre>
+              <p className="mt-1 text-xs text-gray-500">Or clone and build from the cc-fleet-manager repo (mcp/ directory)</p>
+            </div>
+
+            {/* Step 3: Add to Claude Code */}
+            <div>
+              <p className="mb-2 text-xs font-medium text-gray-300">3. Add to ~/.claude/settings.json</p>
+              <pre className="rounded-lg border border-gray-700 bg-gray-800 p-3 text-xs text-gray-300 overflow-x-auto">
+{`{
+  "mcpServers": {
+    "cc-fleet": {
+      "command": "npx",
+      "args": ["@bloomerab/cc-fleet-mcp"]
+    }
+  }
+}`}
+              </pre>
+            </div>
+
+            {/* Step 4: Configure in Claude */}
+            <div>
+              <p className="mb-2 text-xs font-medium text-gray-300">4. In Claude Code, say:</p>
+              <pre className="rounded-lg border border-gray-700 bg-gray-800 p-3 text-xs text-claude overflow-x-auto">
+{`"Configure fleet with URL ${window.location.origin} and token <paste>"`}
+              </pre>
+            </div>
+
+            {/* Usage */}
+            <div>
+              <p className="mb-2 text-xs font-medium text-gray-300">Then use naturally:</p>
+              <div className="space-y-1 text-xs text-gray-400">
+                <p><span className="text-claude">"Push this session to fleet"</span> — uploads your current session</p>
+                <p><span className="text-claude">"Pull session X from fleet"</span> — downloads a Fleet session locally</p>
+                <p><span className="text-claude">"List fleet sessions"</span> — shows all your Fleet sessions</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Auth mode info */}
