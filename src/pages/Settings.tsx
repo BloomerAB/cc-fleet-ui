@@ -118,13 +118,9 @@ const Settings = () => {
                   setSaving(true)
                   setMessage(null)
                   try {
-                    const response = await fetch("/api/settings/api-token", {
-                      method: "POST",
-                      headers: { Authorization: `Bearer ${localStorage.getItem("claude_dashboard_token")}` },
-                    })
-                    const data = await response.json() as { success: boolean; data?: { token: string } }
-                    if (data.success && data.data) {
-                      await navigator.clipboard.writeText(data.data.token)
+                    const response = await api.generateApiToken()
+                    if (response.success && response.data) {
+                      await navigator.clipboard.writeText(response.data.token)
                       setMessage({ type: "success", text: "API token copied to clipboard (valid 1 year)" })
                     }
                   } catch (err) {
@@ -144,7 +140,7 @@ const Settings = () => {
             <div>
               <p className="mb-2 text-xs font-medium text-gray-300">2. Install the MCP server</p>
               <pre className="rounded-lg border border-gray-700 bg-gray-800 p-3 text-xs text-gray-300 overflow-x-auto">
-{`npx @bloomerab/cc-fleet-mcp`}
+{`npx cc-fleet-mcp`}
               </pre>
               <p className="mt-1 text-xs text-gray-500">Or clone and build from the cc-fleet-manager repo (mcp/ directory)</p>
             </div>
@@ -157,7 +153,7 @@ const Settings = () => {
   "mcpServers": {
     "cc-fleet": {
       "command": "npx",
-      "args": ["@bloomerab/cc-fleet-mcp"]
+      "args": ["cc-fleet-mcp"]
     }
   }
 }`}

@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useSessions } from "../hooks/useSessions.js"
 import { SessionCard } from "../components/SessionCard.js"
@@ -10,18 +10,20 @@ const Dashboard = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importError, setImportError] = useState<string | null>(null)
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setImportError(null)
     try {
       const jsonl = await file.text()
       const response = await api.importSession(jsonl)
       if (response.success && response.data) {
         navigate(`/tasks/${response.data.id}`)
       }
-    } catch {
-      // Import failed
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : "Failed to import session")
     }
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
@@ -76,6 +78,11 @@ const Dashboard = () => {
 
         {loading && <p className="text-gray-500">Loading sessions...</p>}
         {error && <p className="text-red-400">{error}</p>}
+        {importError && (
+          <div className="mb-3 rounded-lg border border-red-800 bg-red-900/30 px-4 py-3 text-sm text-red-400">
+            Import failed: {importError}
+          </div>
+        )}
 
         <div className="space-y-3">
           {sessions.map((session) => (

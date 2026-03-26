@@ -98,6 +98,9 @@ const api = {
     if (pattern) params.set("pattern", pattern)
     return request(`/github/repos?${params}`)
   },
+
+  generateApiToken: (): Promise<ApiResponse<{ token: string }>> =>
+    request("/settings/api-token", { method: "POST" }),
 }
 
 export { api }

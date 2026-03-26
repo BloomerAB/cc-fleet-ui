@@ -62,6 +62,7 @@ const TaskDetail = () => {
     }
   }, [session, retrying, navigate])
 
+  const [exportError, setExportError] = useState<string | null>(null)
   const [resuming, setResuming] = useState(false)
   const [resumeError, setResumeError] = useState<string | null>(null)
   const handleResume = useCallback(async () => {
@@ -180,6 +181,7 @@ const TaskDetail = () => {
                 {session.cliSessionId && (
                   <button
                     onClick={async () => {
+                      setExportError(null)
                       try {
                         const jsonl = await api.exportSession(id!)
                         const blob = new Blob([jsonl], { type: "application/x-ndjson" })
@@ -189,8 +191,8 @@ const TaskDetail = () => {
                         a.download = `${session.cliSessionId}.jsonl`
                         a.click()
                         URL.revokeObjectURL(url)
-                      } catch {
-                        // Export not available
+                      } catch (err) {
+                        setExportError(err instanceof Error ? err.message : "Export failed")
                       }
                     }}
                     className="rounded border border-gray-700 px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800"
@@ -200,6 +202,9 @@ const TaskDetail = () => {
                 )}
                 {resumeError && (
                   <span className="text-xs text-red-400">{resumeError}</span>
+                )}
+                {exportError && (
+                  <span className="text-xs text-red-400">{exportError}</span>
                 )}
               </>
             )}

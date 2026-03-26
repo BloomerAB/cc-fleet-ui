@@ -1,7 +1,14 @@
 {
   "name": "cc-fleet-ui",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "React frontend for Claude Code Fleet - manage parallel Claude Code sessions",
+  "license": "MIT",
+  "author": "Bloomer AB",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bloomerab/cc-fleet-ui.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
