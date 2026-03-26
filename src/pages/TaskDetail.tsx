@@ -177,6 +177,27 @@ const TaskDetail = () => {
                 >
                   {retrying ? "Retrying..." : "Retry"}
                 </button>
+                {session.cliSessionId && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const jsonl = await api.exportSession(id!)
+                        const blob = new Blob([jsonl], { type: "application/x-ndjson" })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement("a")
+                        a.href = url
+                        a.download = `${session.cliSessionId}.jsonl`
+                        a.click()
+                        URL.revokeObjectURL(url)
+                      } catch {
+                        // Export not available
+                      }
+                    }}
+                    className="rounded border border-gray-700 px-3 py-1.5 text-xs text-gray-300 hover:bg-gray-800"
+                  >
+                    Export
+                  </button>
+                )}
                 {resumeError && (
                   <span className="text-xs text-red-400">{resumeError}</span>
                 )}

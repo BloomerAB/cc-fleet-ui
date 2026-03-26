@@ -1,11 +1,30 @@
-import { Link } from "react-router-dom"
+import { useRef } from "react"
+import { Link, useNavigate } from "react-router-dom"
 import { useSessions } from "../hooks/useSessions.js"
 import { SessionCard } from "../components/SessionCard.js"
 import { useAuth } from "../hooks/useAuth.js"
+import { api } from "../lib/api-client.js"
 
 const Dashboard = () => {
   const { sessions, loading, error, refetch } = useSessions()
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const jsonl = await file.text()
+      const response = await api.importSession(jsonl)
+      if (response.success && response.data) {
+        navigate(`/tasks/${response.data.id}`)
+      }
+    } catch {
+      // Import failed
+    }
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -32,12 +51,27 @@ const Dashboard = () => {
       <main className="mx-auto max-w-4xl px-4 py-6">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-100">Sessions</h2>
-          <Link
-            to="/tasks/new"
-            className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark"
-          >
-            New Task
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="rounded-lg border border-gray-700 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
+            >
+              Import
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".jsonl"
+              onChange={handleImport}
+              className="hidden"
+            />
+            <Link
+              to="/tasks/new"
+              className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark"
+            >
+              New Task
+            </Link>
+          </div>
         </div>
 
         {loading && <p className="text-gray-500">Loading sessions...</p>}

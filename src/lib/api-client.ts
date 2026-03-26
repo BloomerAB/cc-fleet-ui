@@ -68,6 +68,24 @@ const api = {
   resumeTask: (id: string): Promise<ApiResponse<{ id: string }>> =>
     request(`/tasks/${id}/resume`, { method: "POST" }),
 
+  exportSession: async (id: string): Promise<string> => {
+    const token = getToken()
+    const response = await fetch(`${BASE_URL}/tasks/${id}/export`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}))
+      throw new Error((body as { error?: string }).error ?? `HTTP ${response.status}`)
+    }
+    return response.text()
+  },
+
+  importSession: (jsonl: string, prompt?: string): Promise<ApiResponse<{ id: string; cliSessionId: string }>> =>
+    request("/tasks/import", {
+      method: "POST",
+      body: JSON.stringify({ jsonl, prompt }),
+    }),
+
   getMessages: (id: string): Promise<ApiResponse<readonly { id: string; role: string; content: string; toolName?: string; createdAt: string }[]>> =>
     request(`/tasks/${id}/messages`),
 
