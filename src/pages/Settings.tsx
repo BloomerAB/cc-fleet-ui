@@ -102,6 +102,39 @@ const Settings = () => {
           </div>
         )}
 
+        {/* API Token for CLI/MCP */}
+        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
+          <h2 className="mb-1 text-sm font-semibold text-gray-100">API Token</h2>
+          <p className="mb-4 text-xs text-gray-500">
+            Generate a long-lived token for the cc-fleet MCP server or CLI scripts.
+          </p>
+          <button
+            onClick={async () => {
+              setSaving(true)
+              setMessage(null)
+              try {
+                const response = await fetch("/api/settings/api-token", {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${localStorage.getItem("claude_dashboard_token")}` },
+                })
+                const data = await response.json() as { success: boolean; data?: { token: string } }
+                if (data.success && data.data) {
+                  await navigator.clipboard.writeText(data.data.token)
+                  setMessage({ type: "success", text: "API token copied to clipboard (valid 1 year)" })
+                }
+              } catch (err) {
+                setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed" })
+              } finally {
+                setSaving(false)
+              }
+            }}
+            disabled={saving}
+            className="rounded-lg bg-claude px-4 py-2 text-sm font-medium text-white hover:bg-claude-dark disabled:bg-gray-700 disabled:text-gray-500"
+          >
+            Generate & Copy Token
+          </button>
+        </div>
+
         {/* Auth mode info */}
         <div className="rounded-lg border border-gray-800 bg-gray-900 px-4 py-3">
           <p className="text-sm text-gray-300">
