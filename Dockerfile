@@ -6,12 +6,13 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Serve stage (nginx)
-# In Kubernetes, the Helm chart mounts a ConfigMap that overrides nginx config
-FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Serve stage — lightweight static file server, no nginx
+FROM node:24-alpine
+RUN npm install -g serve@14
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
 
-EXPOSE 80
+EXPOSE 3001
 
-CMD ["nginx", "-g", "daemon off;"]
+# serve with SPA fallback, listen on all interfaces
+CMD ["serve", "dist", "-l", "3001", "-s"]
