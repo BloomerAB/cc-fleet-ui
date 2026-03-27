@@ -2,10 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "./hooks/useAuth.js"
 import { ErrorBoundary } from "./components/ErrorBoundary.js"
 import { Login } from "./pages/Login.js"
-import { Dashboard } from "./pages/Dashboard.js"
 import { TaskNew } from "./pages/TaskNew.js"
 import { TaskDetail } from "./pages/TaskDetail.js"
 import { Settings } from "./pages/Settings.js"
+import { AppLayout } from "./layouts/AppLayout.js"
 
 const ProtectedRoute = ({ children }: { readonly children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth()
@@ -19,30 +19,6 @@ const Router = () => (
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tasks/new"
-          element={
-            <ProtectedRoute>
-              <TaskNew />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tasks/:id"
-          element={
-            <ProtectedRoute>
-              <TaskDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/settings"
           element={
             <ProtectedRoute>
@@ -50,6 +26,17 @@ const Router = () => (
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="tasks/new" element={<TaskNew />} />
+          <Route path="tasks/:id" element={<TaskDetail />} />
+        </Route>
       </Routes>
     </ErrorBoundary>
   </BrowserRouter>

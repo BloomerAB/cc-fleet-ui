@@ -16,7 +16,7 @@ const TaskDetail = () => {
   const [followUpText, setFollowUpText] = useState("")
   const [retrying, setRetrying] = useState(false)
   const [initialOutputs, setInitialOutputs] = useState<DashboardOutputMessage[]>([])
-  const { outputs, questions, status, result: liveResult, stageState, currentStage, sendAnswer, cancel, sendFollowUp, endSession, advanceStage, skipStage } = useSessionSocket(id ?? null, initialOutputs)
+  const { outputs, questions, status, result: liveResult, stageState, sendAnswer, cancel, sendFollowUp, endSession, advanceStage, skipStage } = useSessionSocket(id ?? null, initialOutputs)
 
   useEffect(() => {
     if (!id) return

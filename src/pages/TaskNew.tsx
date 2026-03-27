@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import type { CreateTaskRequest } from "../types/index.js"
 import { api } from "../lib/api-client.js"
 import { TaskForm } from "../components/TaskForm.js"
@@ -25,17 +25,9 @@ const TaskNew = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <header className="border-b border-gray-800 bg-gray-900">
-        <div className="mx-auto flex max-w-4xl items-center gap-4 px-4 py-3">
-          <Link to="/" className="text-gray-500 hover:text-gray-300">
-            &larr; Back
-          </Link>
-          <h1 className="text-lg font-semibold text-gray-100">New Task</h1>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-lg px-4 py-6">
+    <div className="flex h-full flex-col">
+      <div className="mx-auto w-full max-w-lg px-4 py-6">
+        <h2 className="mb-4 text-lg font-semibold text-gray-100">New Task</h2>
         {error && (
           <div className="mb-4 rounded-lg bg-red-900/30 border border-red-800 px-4 py-3 text-sm text-red-400">
             {error}
@@ -44,7 +36,7 @@ const TaskNew = () => {
         <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
           <TaskForm onSubmit={handleSubmit} submitting={submitting} />
         </div>
-      </main>
+      </div>
     </div>
   )
 }
