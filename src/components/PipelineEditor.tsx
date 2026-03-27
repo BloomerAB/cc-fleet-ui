@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react"
 import { api } from "../lib/api-client.js"
-import type { PipelineDefinition, StageDefinition } from "../types/index.js"
+import type { PipelineDefinition } from "../types/index.js"
 
 interface EditableStage {
   readonly id: string
