@@ -55,6 +55,7 @@ export interface Session {
   readonly permissionMode: PermissionMode
   readonly model: ModelChoice
   readonly cliSessionId: string | null
+  readonly pipelineId: string | null
   readonly maxTurns: number
   readonly maxBudgetUsd: number
   readonly deadlineSeconds: number

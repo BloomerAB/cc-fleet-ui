@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react"
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import type { Session, DashboardOutputMessage, StageDefinition } from "../types/index.js"
 import { api } from "../lib/api-client.js"
 import { useSessionSocket } from "../hooks/useSessionSocket.js"
@@ -65,34 +65,16 @@ const TaskDetail = () => {
 
   const [stageDefinitions, setStageDefinitions] = useState<readonly StageDefinition[]>([])
 
-  // Build stage definitions from pipeline data when available
+  // Fetch pipeline stages when session has a pipelineId
   useEffect(() => {
-    if (!stageState || !currentStage) return
-    setStageDefinitions((prev) => {
-      const existing = new Map(prev.map((s) => [s.id, s]))
-      // Update/add current stage
-      existing.set(currentStage.id, {
-        id: currentStage.id,
-        name: currentStage.name,
-        description: currentStage.description,
-        permissionMode: "",
-        transition: currentStage.transition as "auto" | "manual",
-      })
-      // Also track completed stages
-      for (const result of stageState.stageResults) {
-        if (!existing.has(result.stageId)) {
-          existing.set(result.stageId, {
-            id: result.stageId,
-            name: result.stageId,
-            description: "",
-            permissionMode: "",
-            transition: "auto",
-          })
-        }
+    if (!session?.pipelineId) return
+    api.listPipelines().then((res) => {
+      if (res.success && res.data) {
+        const pipeline = res.data.find((p) => p.id === session.pipelineId)
+        if (pipeline) setStageDefinitions(pipeline.stages)
       }
-      return Array.from(existing.values())
-    })
-  }, [stageState, currentStage])
+    }).catch(() => {})
+  }, [session?.pipelineId])
 
   const [exportError, setExportError] = useState<string | null>(null)
   const [resuming, setResuming] = useState(false)
@@ -114,7 +96,7 @@ const TaskDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-950">
+      <div className="flex h-full items-center justify-center">
         <p className="text-gray-500">Loading...</p>
       </div>
     )
@@ -122,7 +104,7 @@ const TaskDetail = () => {
 
   if (!session) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-950">
+      <div className="flex h-full items-center justify-center">
         <p className="text-red-400">Task not found</p>
       </div>
     )
@@ -140,17 +122,8 @@ const TaskDetail = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-950">
-      <header className="border-b border-gray-800 bg-gray-900">
-        <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-2">
-          <Link to="/" className="text-gray-500 hover:text-gray-300">
-            &larr; Back
-          </Link>
-          <h1 className="text-sm font-medium text-gray-300">CC Fleet</h1>
-        </div>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-3">
+    <div className="flex h-full flex-col">
+      <div className="flex flex-1 flex-col px-4 py-3">
         <div className="mb-3 flex items-start justify-between">
           <div>
             <p className="text-sm text-gray-200">{session.prompt}</p>
@@ -306,7 +279,7 @@ const TaskDetail = () => {
         {questions && (
           <QuestionDialog questions={questions} onAnswer={sendAnswer} />
         )}
-      </main>
+      </div>
     </div>
   )
 }
