@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback } from "react"
 import { useParams, Link, useNavigate } from "react-router-dom"
-import type { Session, DashboardOutputMessage } from "../types/index.js"
+import type { Session, DashboardOutputMessage, StageDefinition } from "../types/index.js"
 import { api } from "../lib/api-client.js"
 import { useSessionSocket } from "../hooks/useSessionSocket.js"
 import { StatusBadge } from "../components/StatusBadge.js"
 import { SessionOutput } from "../components/SessionOutput.js"
 import { QuestionDialog } from "../components/QuestionDialog.js"
+import { StageIndicator } from "../components/StageIndicator.js"
 
 const TaskDetail = () => {
   const { id } = useParams<{ id: string }>()
@@ -15,7 +16,7 @@ const TaskDetail = () => {
   const [followUpText, setFollowUpText] = useState("")
   const [retrying, setRetrying] = useState(false)
   const [initialOutputs, setInitialOutputs] = useState<DashboardOutputMessage[]>([])
-  const { outputs, questions, status, result: liveResult, sendAnswer, cancel, sendFollowUp, endSession } = useSessionSocket(id ?? null, initialOutputs)
+  const { outputs, questions, status, result: liveResult, stageState, currentStage, sendAnswer, cancel, sendFollowUp, endSession, advanceStage, skipStage } = useSessionSocket(id ?? null, initialOutputs)
 
   useEffect(() => {
     if (!id) return
@@ -61,6 +62,37 @@ const TaskDetail = () => {
       setRetrying(false)
     }
   }, [session, retrying, navigate])
+
+  const [stageDefinitions, setStageDefinitions] = useState<readonly StageDefinition[]>([])
+
+  // Build stage definitions from pipeline data when available
+  useEffect(() => {
+    if (!stageState || !currentStage) return
+    setStageDefinitions((prev) => {
+      const existing = new Map(prev.map((s) => [s.id, s]))
+      // Update/add current stage
+      existing.set(currentStage.id, {
+        id: currentStage.id,
+        name: currentStage.name,
+        description: currentStage.description,
+        permissionMode: "",
+        transition: currentStage.transition as "auto" | "manual",
+      })
+      // Also track completed stages
+      for (const result of stageState.stageResults) {
+        if (!existing.has(result.stageId)) {
+          existing.set(result.stageId, {
+            id: result.stageId,
+            name: result.stageId,
+            description: "",
+            permissionMode: "",
+            transition: "auto",
+          })
+        }
+      }
+      return Array.from(existing.values())
+    })
+  }, [stageState, currentStage])
 
   const [exportError, setExportError] = useState<string | null>(null)
   const [resuming, setResuming] = useState(false)
@@ -221,6 +253,18 @@ const TaskDetail = () => {
             >
               View PR
             </a>
+          </div>
+        )}
+
+        {stageState && stageDefinitions.length > 0 && (
+          <div className="mb-3">
+            <StageIndicator
+              stages={stageDefinitions}
+              stageState={stageState}
+              isWaiting={isWaiting}
+              onAdvance={advanceStage}
+              onSkip={skipStage}
+            />
           </div>
         )}
 

@@ -93,6 +93,14 @@ const createWsClient = () => {
     send({ type: "end_session", sessionId })
   }
 
+  const advanceStage = (sessionId: string) => {
+    send({ type: "advance_stage", sessionId })
+  }
+
+  const skipStage = (sessionId: string) => {
+    send({ type: "skip_stage", sessionId })
+  }
+
   return {
     connect,
     disconnect,
@@ -102,6 +110,8 @@ const createWsClient = () => {
     cancelSession,
     sendFollowUp,
     endSession,
+    advanceStage,
+    skipStage,
   }
 }
 

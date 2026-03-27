@@ -1,3 +1,5 @@
+import type { StageState } from "./pipeline.js"
+
 // Runner → Session Manager
 export type RunnerMessage =
   | RunnerSdkMessage
@@ -67,6 +69,7 @@ export type ManagerToDashboardMessage =
   | DashboardOutputMessage
   | DashboardQuestionMessage
   | DashboardResultMessage
+  | DashboardStageUpdate
 
 export interface DashboardSessionUpdate {
   readonly type: "session_update"
@@ -94,6 +97,13 @@ export interface DashboardResultMessage {
   readonly result: RunnerResult
 }
 
+export interface DashboardStageUpdate {
+  readonly type: "stage_update"
+  readonly sessionId: string
+  readonly stageState: StageState
+  readonly currentStage: { id: string; name: string; description: string; transition: string }
+}
+
 // Dashboard → Session Manager
 export type DashboardToManagerMessage =
   | DashboardAnswerMessage
@@ -101,6 +111,8 @@ export type DashboardToManagerMessage =
   | DashboardSubscribeMessage
   | DashboardFollowUpMessage
   | DashboardEndSessionMessage
+  | DashboardAdvanceStageMessage
+  | DashboardSkipStageMessage
 
 export interface DashboardAnswerMessage {
   readonly type: "answer"
@@ -126,5 +138,15 @@ export interface DashboardFollowUpMessage {
 
 export interface DashboardEndSessionMessage {
   readonly type: "end_session"
+  readonly sessionId: string
+}
+
+export interface DashboardAdvanceStageMessage {
+  readonly type: "advance_stage"
+  readonly sessionId: string
+}
+
+export interface DashboardSkipStageMessage {
+  readonly type: "skip_stage"
   readonly sessionId: string
 }

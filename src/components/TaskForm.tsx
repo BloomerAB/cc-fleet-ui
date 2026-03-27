@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import type { CreateTaskRequest, RepoSourceMode, GitHubOrg, GitHubRepo, PermissionMode, ModelChoice } from "../types/index.js"
 import { api } from "../lib/api-client.js"
+import { PipelineSelector } from "./PipelineSelector.js"
 
 interface TaskFormProps {
   readonly onSubmit: (data: CreateTaskRequest) => Promise<void>
@@ -41,6 +42,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
   const [taskRules, setTaskRules] = useState("")
   const [permissionMode, setPermissionMode] = useState<PermissionMode>("acceptEdits")
   const [model, setModel] = useState<ModelChoice>("sonnet")
+  const [pipelineId, setPipelineId] = useState<string | null>(null)
 
   // Preview for org mode
   const [previewRepos, setPreviewRepos] = useState<readonly GitHubRepo[]>([])
@@ -154,7 +156,8 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
         prompt,
         repoSource,
         ...(taskRules.trim() ? { rules: taskRules.trim() } : {}),
-        permissionMode,
+        ...(pipelineId === null ? { permissionMode } : {}),
+        ...(pipelineId ? { pipelineId } : {}),
         model,
         maxTurns,
       })
@@ -302,6 +305,9 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
         </div>
       )}
 
+      {/* Pipeline selector */}
+      <PipelineSelector value={pipelineId} onChange={setPipelineId} />
+
       {/* Task prompt */}
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-300">Task Description</label>
@@ -330,8 +336,8 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
       </div>
 
       {/* Permission mode + Model */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
+      <div className={`grid gap-4 ${pipelineId === null ? "grid-cols-2" : "grid-cols-1"}`}>
+        {pipelineId === null && <div>
           <label className="mb-2 block text-sm font-medium text-gray-300">Permission Mode</label>
           <div className="space-y-1">
             {([
@@ -356,7 +362,7 @@ const TaskForm = ({ onSubmit, submitting }: TaskFormProps) => {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-300">Model</label>
           <div className="space-y-1">

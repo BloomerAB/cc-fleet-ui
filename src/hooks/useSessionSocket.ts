@@ -5,6 +5,7 @@ import type {
   RunnerResult,
   Question,
   SessionStatus,
+  StageState,
 } from "../types/index.js"
 import { createWsClient, type WsClient } from "../lib/ws-client.js"
 
@@ -13,6 +14,8 @@ interface SessionSocketState {
   readonly questions: readonly Question[] | null
   readonly status: SessionStatus | null
   readonly result: RunnerResult | null
+  readonly stageState: StageState | null
+  readonly currentStage: { id: string; name: string; description: string; transition: string } | null
 }
 
 const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly DashboardOutputMessage[]) => {
@@ -22,6 +25,8 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
     questions: null,
     status: null,
     result: null,
+    stageState: null,
+    currentStage: null,
   })
 
   useEffect(() => {
@@ -58,6 +63,13 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
             ...prev,
             questions: null,
             result: message.result,
+          }))
+          break
+        case "stage_update":
+          setState((prev) => ({
+            ...prev,
+            stageState: message.stageState,
+            currentStage: message.currentStage,
           }))
           break
       }
@@ -103,6 +115,18 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
     }
   }, [sessionId])
 
+  const advanceStage = useCallback(() => {
+    if (sessionId && clientRef.current) {
+      clientRef.current.advanceStage(sessionId)
+    }
+  }, [sessionId])
+
+  const skipStage = useCallback(() => {
+    if (sessionId && clientRef.current) {
+      clientRef.current.skipStage(sessionId)
+    }
+  }, [sessionId])
+
   const mergedOutputs = useMemo(() => {
     if (state.outputs.length > 0) {
       return [...(initialOutputs ?? []), ...state.outputs]
@@ -117,6 +141,8 @@ const useSessionSocket = (sessionId: string | null, initialOutputs?: readonly Da
     cancel,
     sendFollowUp,
     endSession,
+    advanceStage,
+    skipStage,
   }
 }
 

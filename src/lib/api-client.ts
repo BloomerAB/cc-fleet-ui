@@ -7,6 +7,7 @@ import type {
   ApiResponse,
   GitHubOrg,
   GitHubRepo,
+  PipelineDefinition,
 } from "../types/index.js"
 import { getToken } from "./auth.js"
 
@@ -101,6 +102,16 @@ const api = {
 
   generateApiToken: (): Promise<ApiResponse<{ token: string }>> =>
     request("/settings/api-token", { method: "POST" }),
+
+  // Pipelines
+  listPipelines: (): Promise<ApiResponse<readonly PipelineDefinition[]>> =>
+    request("/pipelines"),
+
+  advanceStage: (id: string): Promise<ApiResponse<null>> =>
+    request(`/tasks/${id}/advance-stage`, { method: "POST" }),
+
+  skipStage: (id: string): Promise<ApiResponse<null>> =>
+    request(`/tasks/${id}/skip-stage`, { method: "POST" }),
 }
 
 export { api }

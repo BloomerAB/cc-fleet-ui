@@ -23,6 +23,7 @@ export interface CreateTaskRequest {
   readonly model?: ModelChoice
   readonly maxTurns?: number
   readonly maxBudgetUsd?: number
+  readonly pipelineId?: string
 }
 
 // GitHub API types

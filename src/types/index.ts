@@ -19,15 +19,25 @@ export type {
   DashboardOutputMessage,
   DashboardQuestionMessage,
   DashboardResultMessage,
+  DashboardStageUpdate,
   DashboardToManagerMessage,
   DashboardAnswerMessage,
   DashboardCancelMessage,
   DashboardSubscribeMessage,
+  DashboardAdvanceStageMessage,
+  DashboardSkipStageMessage,
   Question,
   QuestionOption,
   RunnerResult,
   SdkMessage,
 } from "./messages.js"
+
+export type {
+  StageDefinition,
+  PipelineDefinition,
+  StageState,
+  StageResult,
+} from "./pipeline.js"
 
 export type {
   ApiResponse,
