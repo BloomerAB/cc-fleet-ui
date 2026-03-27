@@ -56,6 +56,7 @@ export interface Session {
   readonly model: ModelChoice
   readonly cliSessionId: string | null
   readonly pipelineId: string | null
+  readonly stageState: import("./pipeline.js").StageState | null
   readonly maxTurns: number
   readonly maxBudgetUsd: number
   readonly deadlineSeconds: number

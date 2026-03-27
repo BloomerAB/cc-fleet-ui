@@ -54,6 +54,7 @@ const TaskDetail = () => {
         permissionMode: session.permissionMode,
         model: session.model,
         maxTurns: session.maxTurns,
+        ...(session.pipelineId ? { pipelineId: session.pipelineId } : {}),
       })
       if (response.success && response.data) {
         navigate(`/tasks/${response.data.id}`)
@@ -229,11 +230,11 @@ const TaskDetail = () => {
           </div>
         )}
 
-        {stageState && stageDefinitions.length > 0 && (
+        {(stageState ?? session?.stageState) && stageDefinitions.length > 0 && (
           <div className="mb-3">
             <StageIndicator
               stages={stageDefinitions}
-              stageState={stageState}
+              stageState={(stageState ?? session?.stageState)!}
               isWaiting={isWaiting}
               onAdvance={advanceStage}
               onSkip={skipStage}
