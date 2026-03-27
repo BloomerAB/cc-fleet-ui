@@ -124,6 +124,11 @@ const SessionSidebar = ({ sessions, loading, error, onImported }: SessionSidebar
               </p>
               <div className="mt-1 flex items-center gap-2">
                 <StatusBadge status={session.status} />
+                {session.stageState && session.pipelineId && session.status !== "completed" && (
+                  <span className="text-xs text-claude">
+                    stage {session.stageState.currentStageIndex + 1}
+                  </span>
+                )}
                 <span className="text-xs text-gray-500">{timeAgo(session.createdAt)}</span>
                 {session.result?.costUsd !== undefined && (
                   <span className="text-xs text-gray-500">${session.result.costUsd.toFixed(2)}</span>

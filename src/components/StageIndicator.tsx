@@ -22,68 +22,59 @@ const StageIndicator = ({ stages, stageState, isWaiting, onAdvance, onSkip }: St
   const showManualControls = isWaiting && currentStage?.transition === "manual"
 
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900 px-4 py-3">
-      {/* Stage pills */}
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex items-center gap-3">
+      {/* Current stage label */}
+      {currentStage && (
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-claude" />
+          <span className="text-sm font-medium text-claude-light">{currentStage.name}</span>
+        </div>
+      )}
+
+      {/* Stage progress pills */}
+      <div className="flex items-center gap-1">
         {stages.map((stage, index) => {
           const status = getStageStatus(index)
           return (
-            <div key={stage.id} className="flex items-center gap-2">
-              {index > 0 && (
-                <div
-                  className={`hidden h-px w-4 sm:block ${
-                    status === "completed" || status === "skipped" ? "bg-gray-600" : "bg-gray-800"
-                  }`}
-                />
-              )}
-              <div
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  status === "completed"
-                    ? "bg-green-900/40 text-green-400 border border-green-800"
-                    : status === "skipped"
-                      ? "bg-gray-800 text-gray-500 border border-gray-700 line-through"
-                      : status === "active"
-                        ? "bg-claude/15 text-claude-light border border-claude"
-                        : "bg-gray-800/50 text-gray-500 border border-gray-800"
-                }`}
-              >
-                {status === "completed" && (
-                  <svg className="h-3 w-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-                {status === "active" && (
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-claude" />
-                )}
-                {stage.name}
-              </div>
-            </div>
+            <div
+              key={stage.id}
+              title={`${stage.name}${status === "active" ? " (current)" : status === "completed" ? " (done)" : status === "skipped" ? " (skipped)" : ""}`}
+              className={`h-1.5 rounded-full transition-colors ${
+                stages.length <= 6 ? "w-8" : "w-5"
+              } ${
+                status === "completed"
+                  ? "bg-green-500"
+                  : status === "skipped"
+                    ? "bg-gray-600"
+                    : status === "active"
+                      ? "bg-claude"
+                      : "bg-gray-700"
+              }`}
+            />
           )
         })}
       </div>
 
-      {/* Current stage description + actions */}
-      {currentStage && (
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs text-gray-500">
-            Stage {currentStageIndex + 1}/{stages.length}: {currentStage.description}
-          </p>
-          {showManualControls && (
-            <div className="flex gap-2">
-              <button
-                onClick={onAdvance}
-                className="rounded border border-claude bg-claude/10 px-3 py-1 text-xs font-medium text-claude hover:bg-claude/20"
-              >
-                Next Stage
-              </button>
-              <button
-                onClick={onSkip}
-                className="rounded border border-gray-700 px-3 py-1 text-xs text-gray-400 hover:bg-gray-800"
-              >
-                Skip
-              </button>
-            </div>
-          )}
+      {/* Stage counter */}
+      <span className="text-xs text-gray-500">
+        {currentStageIndex + 1}/{stages.length}
+      </span>
+
+      {/* Manual controls */}
+      {showManualControls && (
+        <div className="flex gap-1.5">
+          <button
+            onClick={onAdvance}
+            className="rounded border border-claude bg-claude/10 px-2.5 py-0.5 text-xs font-medium text-claude hover:bg-claude/20"
+          >
+            Next
+          </button>
+          <button
+            onClick={onSkip}
+            className="rounded border border-gray-700 px-2.5 py-0.5 text-xs text-gray-400 hover:bg-gray-800"
+          >
+            Skip
+          </button>
         </div>
       )}
     </div>
