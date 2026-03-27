@@ -2,8 +2,10 @@ export interface StageDefinition {
   readonly id: string
   readonly name: string
   readonly description: string
+  readonly systemPromptAppend?: string
   readonly permissionMode: string
   readonly transition: "auto" | "manual"
+  readonly maxTurns?: number
 }
 
 export interface PipelineDefinition {

@@ -107,6 +107,12 @@ const api = {
   listPipelines: (): Promise<ApiResponse<readonly PipelineDefinition[]>> =>
     request("/pipelines"),
 
+  createPipeline: (pipeline: PipelineDefinition): Promise<ApiResponse<PipelineDefinition>> =>
+    request("/pipelines", { method: "POST", body: JSON.stringify({ pipeline }) }),
+
+  deletePipeline: (id: string): Promise<ApiResponse<{ deleted: boolean }>> =>
+    request(`/pipelines/${id}`, { method: "DELETE" }),
+
   advanceStage: (id: string): Promise<ApiResponse<null>> =>
     request(`/tasks/${id}/advance-stage`, { method: "POST" }),
 

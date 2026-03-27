@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { api } from "../lib/api-client.js"
+import { PipelineEditor } from "../components/PipelineEditor.js"
 
 const Settings = () => {
   const [authMode, setAuthMode] = useState<"apiKey" | "subscription">("apiKey")
@@ -300,6 +301,9 @@ const Settings = () => {
             </button>
           </form>
         </div>
+
+        {/* Custom Pipelines */}
+        <PipelineEditor onMessage={setMessage} />
 
         {/* Kubeconfig */}
         <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
