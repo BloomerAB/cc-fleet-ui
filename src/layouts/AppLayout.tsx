@@ -1,4 +1,4 @@
-import { Outlet, useParams, useNavigate } from "react-router-dom"
+import { Outlet, useParams, useNavigate, useLocation } from "react-router-dom"
 import { useEffect } from "react"
 import { useSessions } from "../hooks/useSessions.js"
 import { SessionSidebar } from "../components/SessionSidebar.js"
@@ -8,15 +8,18 @@ const AppLayout = () => {
   const { sessions, loading, error, refetch } = useSessions()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
 
-  // On desktop, if no session is selected and sessions exist, navigate to the most recent
+  const isNewTaskPage = location.pathname === "/tasks/new"
+
+  // If on root with no session selected (and not creating new), navigate to most recent
   useEffect(() => {
-    if (!id && !loading && sessions.length > 0) {
+    if (!id && !isNewTaskPage && !loading && sessions.length > 0) {
       navigate(`/tasks/${sessions[0].id}`, { replace: true })
     }
-  }, [id, loading, sessions, navigate])
+  }, [id, isNewTaskPage, loading, sessions, navigate])
 
-  const showEmptyState = !id && !loading && sessions.length === 0
+  const showEmptyState = !id && !isNewTaskPage && !loading && sessions.length === 0
 
   return (
     <div className="flex h-screen flex-col bg-gray-950">
